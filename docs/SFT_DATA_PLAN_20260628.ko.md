@@ -67,7 +67,7 @@ Prepared subtotal: about **3.579B tokens** before dedupe/weighting.
 | split | local path | max seq | samples | tokens | status |
 |---|---|---:|---:|---:|---|
 | Stage0 legal | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage0_legal` | 8192 | 8,747 | 35,068,923 | trained |
-| Stage0b fast finance/Text2SQL | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage0b_fast_mix_4k_finance_text2sql` | 4096 | 280,000 | 58,090,087 | training |
+| Stage0b fast finance/Text2SQL | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage0b_fast_mix_4k_finance_text2sql` | 4096 | 280,000 | 58,090,087 | trained/uploaded |
 | Stage1 4k finance/Text2SQL | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage1_ko_finance_terminal_text2sql_4k_finance_text2sql` | 4096 | 2,302,304 | 1,285,864,494 | ready |
 | Stage1 8k legal/terminal | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage1_ko_finance_terminal_text2sql_8k_legal_terminal` | 8192 | 1,600,835 | 1,658,848,754 | ready |
 | Stage2 diverse KO/SWE/reasoning | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage2_diverse_ko_swe_reasoning_4k` | 4096 | 1,467,864 | 1,364,349,642 | ready |

@@ -1,0 +1,17 @@
+# One task group per GPU slot for the lm-eval/vLLM queue.
+#
+# LFM official-card overlap available in local lm-eval:
+ifeval
+minerva_math500
+aime25
+gsm8k
+arc_challenge,hellaswag,truthfulqa_mc2
+#
+# Korean language and Korean domain ability:
+global_mmlu_ko
+global_mmlu_full_ko
+kmmlu_direct_hard
+kmmlu_cot_hard
+kobest
+haerae
+belebele_kor_Hang

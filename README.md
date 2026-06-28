@@ -4,6 +4,9 @@ This workspace prepares, trains, evaluates, and publishes
 `LLM-OS-Models/LFM2.5-8B-A1B-KO-SFT`.
 
 - Korean guide: [`docs/SFT_DATA_PLAN_20260628.ko.md`](docs/SFT_DATA_PLAN_20260628.ko.md)
+- Runbook: [`docs/RUNBOOK_20260628.ko.md`](docs/RUNBOOK_20260628.ko.md)
+- Final evaluation plan: [`docs/EVAL_PLAN_FINAL_SFT_20260628.ko.md`](docs/EVAL_PLAN_FINAL_SFT_20260628.ko.md)
+- External evaluation harnesses: [`docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md`](docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md)
 - Hugging Face model card source: [`model_card.md`](model_card.md)
 - Target Hub repo: <https://huggingface.co/LLM-OS-Models/LFM2.5-8B-A1B-KO-SFT>
 - Base model: <https://huggingface.co/LiquidAI/LFM2.5-8B-A1B>
@@ -112,22 +115,28 @@ only. The `test` split is intentionally held out for later Korean QA evaluation.
 
 1. Stage1 4k finance/Text2SQL on 8 GPUs.
 2. Stage1 8k legal/terminal for legal long-context and tool behavior.
-3. Stage2 4k diverse KO/SWE/reasoning plus KoTSQA if prep completes.
-4. Run the full vLLM comparison table and update the model card.
+3. Stage2 4k diverse KO/SWE/reasoning plus KoTSQA.
+4. Run the final vLLM/lm-eval comparison table and update the model card.
+5. Run external harnesses for official-card items that are not in local lm-eval.
+
+Priority rule: keep the full SFT chain running first. CPU/network setup, docs,
+and harness installation can run in parallel, but GPU evaluation waits until a
+training stage releases GPUs unless it is a deliberate quick gate.
 
 Automatic chain sessions:
 
 ```bash
 tmux attach -t lfm2ko_chain_after_stage1_20260628
 tmux attach -t lfm2ko_chain_stage2_after_8k_20260628
-tmux attach -t lfm2ko_prep_kotsqa_stage2_plus_20260628
+tmux attach -t lfm2ko_chain_final_eval_after_stage2_20260628
+tmux attach -t lfm2ko_setup_external_harnesses_20260628
 ```
 
-ETA from the 2026-06-28 16:41 KST status:
+ETA from the 2026-06-28 19:15 KST status:
 
 | item | tokens | estimate |
 |---|---:|---:|
-| Stage1 4k train | 1.286B | 2026-06-29 03:15-03:45 KST |
+| Stage1 4k train | 1.286B | 2026-06-29 03:20-03:35 KST |
 | Stage1 8k train | 1.659B | 2026-06-29 19:30-2026-06-30 01:30 KST |
 | Stage2 diverse plus KoTSQA train | 1.364864B | 2026-06-30 07:30-14:00 KST |
 
@@ -193,6 +202,37 @@ The default queue config lives in:
 
 - `configs/eval_models_20260628.txt`
 - `configs/eval_task_groups_20260628.txt`
+
+The final post-training queue config lives in:
+
+- `configs/eval_models_final_sft_20260628.txt`
+- `configs/eval_task_groups_final_sft_lm_eval_20260628.txt`
+
+It includes LFM official-card overlap available through local lm-eval
+(`ifeval`, `minerva_math500`, `aime25`) and Korean probes
+(`global_mmlu_ko`, `global_mmlu_full_ko`, `kmmlu_direct_hard`,
+`kmmlu_cot_hard`, `kobest`, `haerae`, `belebele_kor_Hang`). Official LFM
+items that need separate harnesses are tracked in
+`docs/EVAL_PLAN_FINAL_SFT_20260628.ko.md`.
+
+## External Harnesses
+
+Separate harness setup covers the remaining official-card families:
+
+- BFCLv3/BFCLv4 for tool/function calling
+- Tau2 Telecom/Retail for agentic tool use
+- IFBench and Multi-IF for instruction following
+- AA-Omniscience through LightEval once the installed task string is confirmed
+
+Setup can run while training continues:
+
+```bash
+cd /home/work/.projects/LLM-OS-Models/Terminal/lfm2_ko_sft
+bash scripts/setup_external_eval_harnesses.sh
+```
+
+The detailed command sheet is
+[`docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md`](docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md).
 
 ## Colab / Inference Example
 
