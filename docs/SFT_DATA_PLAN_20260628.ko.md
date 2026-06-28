@@ -16,15 +16,15 @@
 | 항목 | 상태 | 경로 / 수치 |
 |---|---|---|
 | Stage0 legal | 완료 | `/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-SFT-stage0-legal-20260628/final_full` |
-| Stage0b finance/Text2SQL | 8 x H200 학습 중 | 280,000 samples, 58,090,087 tokens, 2,188 planned steps |
-| Stage1 4k finance/Text2SQL | 준비 완료 | 2,302,304 samples, 1,285,864,494 tokens |
+| Stage0b finance/Text2SQL | 완료/업로드 | 280,000 samples, 58,090,087 tokens, 2,188 planned steps |
+| Stage1 4k finance/Text2SQL | 8 x H200 학습 중 | 2,302,304 samples, 1,285,864,494 tokens, 17,987 planned steps |
 | Stage1 8k legal/terminal | 준비 완료 | 1,600,835 samples, 1,658,848,754 tokens |
-| Stage1 합계 | 준비 완료 | 약 2.945B tokens |
-| Stage2 diverse KO/SWE/reasoning | CPU 전처리 중 | raw CPT corpus 제외, SFT 성격만 포함 |
+| Stage2 diverse KO/SWE/reasoning | 준비 완료 | 1,467,864 samples, 1,364,349,642 tokens, raw CPT corpus 제외 |
+| Stage2 plus KoTSQA | CPU 전처리 중 | KoTSQA train split만 추가, test split은 평가용으로 보류 |
+| SFT 합계 | 준비/진행 | 1.286B + 1.659B + 1.364B = 4.309B tokens before KoTSQA |
 
-Stage0b의 최근 실측 속도는 약 70-74 examples/sec 수준이다. 이 속도 기준
-2,188 steps 전체는 약 5.0-5.5시간이 걸리고, checkpoint 저장과 Hub 업로드를
-포함하면 그보다 더 길어진다.
+Stage1 4k의 2026-06-28 16:41 KST 기준 실측 속도는 약 57-59 examples/sec,
+약 2.2초/update step이다. 8 GPU VRAM은 GPU당 약 105-136GB까지 사용 중이다.
 
 ## LFM 포맷 기준
 
@@ -70,6 +70,8 @@ Prepared subtotal: about **3.579B tokens** before dedupe/weighting.
 | Stage0b fast finance/Text2SQL | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage0b_fast_mix_4k_finance_text2sql` | 4096 | 280,000 | 58,090,087 | training |
 | Stage1 4k finance/Text2SQL | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage1_ko_finance_terminal_text2sql_4k_finance_text2sql` | 4096 | 2,302,304 | 1,285,864,494 | ready |
 | Stage1 8k legal/terminal | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage1_ko_finance_terminal_text2sql_8k_legal_terminal` | 8192 | 1,600,835 | 1,658,848,754 | ready |
+| Stage2 diverse KO/SWE/reasoning | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage2_diverse_ko_swe_reasoning_4k` | 4096 | 1,467,864 | 1,364,349,642 | ready |
+| Stage2 plus KoTSQA | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage2_plus_kotsqa_4k` | 4096 | pending | pending | preparing |
 
 ## JSONL SFT Shards
 
@@ -86,7 +88,7 @@ Prepared subtotal: about **3.579B tokens** before dedupe/weighting.
 |---|---|---|
 | legalize-kr | <https://github.com/legalize-kr> | 법률 출처 및 법령/판례/시험형 데이터 출처 명시 |
 | LLM-Ko-Datasets | <https://github.com/gyunggyung/LLM-Ko-Datasets> | 한국어 QA, SFT, domain 후보 인덱스 |
-| KoTSQA v2 | <https://huggingface.co/datasets/etri-lirs/KoTSQA-v.2.0> | 평가에 쓰지 않는 split만 SFT 후보로 사용 가능 |
+| KoTSQA v2 | <https://huggingface.co/datasets/etri-lirs/KoTSQA-v.2.0> | `train` split만 Stage2 보강 SFT에 사용, `test`는 평가용 보류 |
 
 추가 데이터는 평가셋 오염 여부를 먼저 확인해야 한다. 특히 KMMLU, Global MMLU
 Korean, 법률 MCQA, 금융 MCQA에 직접 들어갈 항목은 train mix에서 제외한다.
@@ -136,9 +138,24 @@ Stage1 전체를 같은 effective batch 128로 1 epoch 돌리면:
 - 8k split: `ceil(1600835 / 128) = 12,507` steps
 - 단순 합계: 약 30,494 update steps
 
-Stage0b 실측 속도와 sequence length 차이를 감안하면 Stage1 전체 1 epoch는 수십 시간
-규모가 될 가능성이 높다. 8k split은 토큰 길이가 길어서 4k split보다 훨씬 느릴 수
-있다.
+2026-06-28 16:41 KST 기준 자동 진행 순서와 예상 완료 시간:
+
+| order | stage | tokens | estimated completion |
+|---:|---|---:|---|
+| 1 | Stage1 4k finance/Text2SQL | 1.286B | 2026-06-29 03:15-03:45 KST |
+| 2 | Stage1 8k legal/terminal | 1.659B | 2026-06-29 19:30-2026-06-30 01:30 KST |
+| 3 | Stage2 4k diverse plus KoTSQA | 1.364B + KoTSQA train | 2026-06-30 07:30-14:00 KST |
+
+8k split은 토큰 길이가 길어서 4k split보다 느릴 수 있다. 완료 시간은 각 stage가
+시작되면 `train_log.jsonl`의 실제 속도로 갱신한다.
+
+자동 체인:
+
+```bash
+tmux attach -t lfm2ko_chain_after_stage1_20260628
+tmux attach -t lfm2ko_chain_stage2_after_8k_20260628
+tmux attach -t lfm2ko_prep_kotsqa_stage2_plus_20260628
+```
 
 ## Stage2 Diverse SFT 계획
 
@@ -158,8 +175,16 @@ Stage0b 실측 속도와 sequence length 차이를 감안하면 Stage1 전체 1 
 | legal compact | `kohrm_sft_comp_korean_legal_50m_v1` | 0.050B |
 | Text2SQL | `kohrm_sft_text2sql_core_clean_duckdb_v1` | 0.115B |
 
-대략 1.27B old-token 규모 후보이며, LFM tokenizer로 다시 변환하면 최종 토큰 수는
-달라질 수 있다.
+LFM tokenizer 변환 완료본은 1,364,349,642 tokens이다.
+
+KoTSQA 보강:
+
+- Source: <https://huggingface.co/datasets/etri-lirs/KoTSQA-v.2.0>
+- 학습 사용: `train` split only
+- 평가 보류: `test` split
+- 변환 스크립트: `scripts/convert_kotsqa_to_lfm_sft_jsonl.py`
+- 준비/merge 스크립트: `scripts/run_prepare_lfmchat_kotsqa_stage2_plus.sh`
+- 목적: 한국어 표/문서 근거 QA, multi-hop QA, false-premise correction 보강
 
 제외한다:
 

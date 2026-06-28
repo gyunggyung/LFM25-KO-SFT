@@ -36,10 +36,25 @@ Training is in progress. Do not treat this card as a final benchmark report yet.
 | stage | status | samples | tokens | max seq | note |
 |---|---|---:|---:|---:|---|
 | Stage0 legal | completed | 8,747 | 35,068,923 | 8192 | Korean legal source/bar-style warmup |
-| Stage0b finance/Text2SQL | running | 280,000 | 58,090,087 | 4096 | 8 x H200 full SFT, 2,188 planned steps |
-| Stage1 4k finance/Text2SQL | prepared | 2,302,304 | 1,285,864,494 | 4096 | ready for next training phase |
+| Stage0b finance/Text2SQL | completed/uploaded | 280,000 | 58,090,087 | 4096 | 8 x H200 full SFT, 2,188 planned steps |
+| Stage1 4k finance/Text2SQL | running | 2,302,304 | 1,285,864,494 | 4096 | 8 x H200 full SFT, 17,987 planned steps |
 | Stage1 8k legal/terminal | prepared | 1,600,835 | 1,658,848,754 | 8192 | ready for next training phase |
-| Stage2 diverse KO/SWE/reasoning | preparing | pending | pending | 4096 | excludes raw CPT corpora |
+| Stage2 diverse KO/SWE/reasoning | prepared | 1,467,864 | 1,364,349,642 | 4096 | excludes raw CPT corpora |
+| Stage2 plus KoTSQA | preparing | pending | pending | 4096 | adds KoTSQA train split only |
+
+Current staged SFT total before KoTSQA is about **4.309B tokens**:
+
+- Stage1 4k finance/Text2SQL: 1.286B tokens
+- Stage1 8k legal/terminal: 1.659B tokens
+- Stage2 diverse KO/SWE/reasoning: 1.364B tokens
+
+ETA from the 2026-06-28 16:41 KST status:
+
+| stage | estimated completion |
+|---|---|
+| Stage1 4k | 2026-06-29 03:15-03:45 KST |
+| Stage1 8k | 2026-06-29 19:30-2026-06-30 01:30 KST |
+| Stage2 plus KoTSQA | 2026-06-30 07:30-14:00 KST |
 
 ## Goal
 
@@ -62,8 +77,8 @@ Main source groups:
 - Text2SQL and structured reasoning data.
 - Terminal/tool-use and ToolBench-style conversations.
 - Coding/SWE data.
-- Public Korean QA candidates such as KoTSQA can be used only when they are not
-  part of the held-out evaluation set:
+- KoTSQA train split for Korean evidence QA and false-premise correction. The
+  test split is kept out for later evaluation:
   <https://huggingface.co/datasets/etri-lirs/KoTSQA-v.2.0>.
 - Korean dataset index reviewed for additional candidates:
   <https://github.com/gyunggyung/LLM-Ko-Datasets>.
@@ -77,6 +92,23 @@ The next Stage2 pool is being prepared from Korean domain SFT, behavior mix,
 SWE/coding, reasoning, compact finance/legal, and Text2SQL reinforcement data.
 Raw CPT-style corpora such as Korean Wikipedia and raw law text are intentionally
 excluded from this SFT phase.
+
+## Quick Sanity Evaluation
+
+This is a small `limit=50` vLLM sanity slice, not a final benchmark.
+
+| task | base `LiquidAI/LFM2.5-8B-A1B` | CPT `LFM2.5-8B-A1B-KO-CPT-FULL` |
+|---|---:|---:|
+| ARC Challenge acc | 0.2000 | 0.2000 |
+| HellaSwag acc | 0.4200 | 0.3800 |
+| GSM8K exact match | 0.4600 | 0.2200 |
+| IFEval strict prompt acc | 0.1600 | 0.1200 |
+| TruthfulQA MC2 acc | 0.5546 | 0.5407 |
+
+The current CPT checkpoint is Korean-knowledge heavy and does not improve this
+small English/general sanity slice. The ongoing SFT stages are intended to
+recover instruction following, reasoning format, legal/finance QA, tool use, and
+coding behavior.
 
 ## Training Recipe
 

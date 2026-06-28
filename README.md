@@ -13,14 +13,15 @@ This workspace prepares, trains, evaluates, and publishes
 | item | status | path / note |
 |---|---|---|
 | Stage0 legal full SFT | done | `/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-SFT-stage0-legal-20260628/final_full` |
-| Stage0b finance/Text2SQL full SFT | running on 8 x H200 | log: `logs/train/20260628_stage0b_finance_text2sql.torchrun.log` |
-| Stage1 4k finance/Text2SQL prepared set | ready | 2,302,304 samples, 1.286B tokens |
+| Stage0b finance/Text2SQL full SFT | done/uploaded | `/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-SFT-stage0b-finance-text2sql-20260628/final_full` |
+| Stage1 4k finance/Text2SQL full SFT | running on 8 x H200 | 2,302,304 samples, 1.286B tokens, 17,987 planned steps |
 | Stage1 8k legal/terminal prepared set | ready | 1,600,835 samples, 1.659B tokens |
-| Stage1 total prepared tokens | ready | about 2.945B tokens |
-| Stage2 diverse KO/SWE/reasoning prep | running on CPU | excludes raw CPT-style corpora |
-| Evaluation results | pending | base/CPT/SFT vLLM comparison still needs execution after current training checkpoint |
+| Stage2 diverse KO/SWE/reasoning prepared set | ready | 1.364B tokens, excludes raw CPT-style corpora |
+| Stage2 plus KoTSQA | preparing on CPU | adds `etri-lirs/KoTSQA-v.2.0` train split only |
+| SFT token total | staged | 1.286B + 1.659B + 1.364B = 4.309B before KoTSQA |
+| Evaluation results | partial | quick base/CPT sanity slice exists; SFT eval deferred to keep GPUs training |
 
-The active Stage0b run uses full-parameter SFT, not LoRA. The working launcher is
+The active run uses full-parameter SFT, not LoRA. The working launcher is
 the direct `torchrun` DDP path because the earlier `Trainer` run loaded weights but
 stalled with near-zero GPU memory use during the second stage.
 
@@ -50,20 +51,20 @@ bash scripts/run_prepare_lfmchat_stage0_legal.sh
 bash scripts/run_lfm25_ko_sft_stage0_legal.sh
 ```
 
-The current Stage0b run is:
+The current Stage1 4k run is:
 
 ```bash
 cd /home/work/.projects/LLM-OS-Models/Terminal/lfm2_ko_sft
-tmux attach -t lfm2ko_sft_stage0b_torchrun_20260628
+tmux attach -t lfm2ko_sft_stage1_4k_20260628
 ```
 
 Equivalent direct command:
 
 ```bash
-DATASET_PATH=/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage0b_fast_mix_4k_finance_text2sql \
-MODEL_PATH=/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-SFT-stage0-legal-20260628/final_full \
-RUN_ID=stage0b-finance-text2sql-20260628 \
-STAGE_NAME=stage0b_finance_text2sql \
+DATASET_PATH=/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage1_ko_finance_terminal_text2sql_4k_finance_text2sql \
+MODEL_PATH=/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-SFT-stage0b-finance-text2sql-20260628/final_full \
+RUN_ID=stage1-4k-finance-text2sql-20260628 \
+STAGE_NAME=stage1_4k_finance_text2sql \
 MAX_SEQ_LENGTH=4096 \
 PER_DEVICE_TRAIN_BATCH_SIZE=2 \
 GRADIENT_ACCUMULATION_STEPS=8 \
@@ -74,8 +75,8 @@ bash scripts/run_lfm25_ko_sft_torchrun_lfmchat_dataset.sh
 ```
 
 Effective batch size is `8 GPUs * 2 sequences/GPU * 8 accumulation = 128`
-sequences/update. Stage0b has 280,000 samples and is planned for 2,188 update
-steps.
+sequences/update. Stage1 4k has 2,302,304 samples and is planned for 17,987
+update steps.
 
 ## Prepared Data
 
@@ -93,41 +94,61 @@ Important prepared sets:
 | Stage0b fast mix | `20260628_lfmchat_stage0b_fast_mix_4k_finance_text2sql` | 4096 | 280,000 | 58,090,087 |
 | Stage1 4k finance/Text2SQL | `20260628_lfmchat_stage1_ko_finance_terminal_text2sql_4k_finance_text2sql` | 4096 | 2,302,304 | 1,285,864,494 |
 | Stage1 8k legal/terminal | `20260628_lfmchat_stage1_ko_finance_terminal_text2sql_8k_legal_terminal` | 8192 | 1,600,835 | 1,658,848,754 |
+| Stage2 diverse KO/SWE/reasoning | `20260628_lfmchat_stage2_diverse_ko_swe_reasoning_4k` | 4096 | 1,467,864 | 1,364,349,642 |
 
 See the data plan for source URLs, local paths, and ratios.
 
-Stage2 diverse SFT is being prepared under:
+KoTSQA is being prepared as a Stage2 supplement under:
 
 ```text
-/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage2_diverse_ko_swe_reasoning_4k
+/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage2_plus_kotsqa_4k
 ```
 
-It intentionally excludes CPT/raw text corpora such as Korean Wikipedia, raw law
-corpora, and large pretraining-style terminal mixes. Included source families are
-Korean domain SFT, behavior mix, SWE/coding, reasoning, compact finance/legal,
-and Text2SQL reinforcement.
+It uses the `train` split from <https://huggingface.co/datasets/etri-lirs/KoTSQA-v.2.0>
+only. The `test` split is intentionally held out for later Korean QA evaluation.
 
 ## Training Order
 
-1. Finish Stage0b finance/Text2SQL/legal subset and upload final full model.
-2. Run a quick vLLM sanity/eval slice on base, CPT, and Stage0b SFT.
-3. Train Stage1 4k finance/Text2SQL on 8 GPUs.
-4. Run a quick vLLM slice again to catch Korean/format regression.
-5. Train Stage1 8k legal/terminal for legal long-context and tool behavior.
-6. Train Stage2 diverse KO/SWE/reasoning once CPU prep finishes.
-7. Run the full vLLM comparison table and update the model card.
+1. Stage1 4k finance/Text2SQL on 8 GPUs.
+2. Stage1 8k legal/terminal for legal long-context and tool behavior.
+3. Stage2 4k diverse KO/SWE/reasoning plus KoTSQA if prep completes.
+4. Run the full vLLM comparison table and update the model card.
 
-Rough ETA from the 2026-06-28 15:56 KST status:
+Automatic chain sessions:
 
-| item | estimate |
-|---|---:|
-| Stage0b train final save/upload | 16:10-16:50 KST |
-| Stage2 CPU prep | 17:00-19:00 KST, disk dependent |
-| Stage1 4k train | 8-9 hours after start |
-| Stage1 8k train | 26-30 hours after start |
-| Stage2 diverse train | 6-12 hours after start, depending final token count |
+```bash
+tmux attach -t lfm2ko_chain_after_stage1_20260628
+tmux attach -t lfm2ko_chain_stage2_after_8k_20260628
+tmux attach -t lfm2ko_prep_kotsqa_stage2_plus_20260628
+```
 
-These windows will be updated from actual step/sec after each stage starts.
+ETA from the 2026-06-28 16:41 KST status:
+
+| item | tokens | estimate |
+|---|---:|---:|
+| Stage1 4k train | 1.286B | 2026-06-29 03:15-03:45 KST |
+| Stage1 8k train | 1.659B | 2026-06-29 19:30-2026-06-30 01:30 KST |
+| Stage2 diverse plus KoTSQA train | 1.364B + KoTSQA train | 2026-06-30 07:30-14:00 KST |
+
+These windows are estimates and should be refreshed from `train_log.jsonl` after
+each stage starts.
+
+## Quick Eval Snapshot
+
+The 2026-06-28 quick vLLM sanity run used `limit=50`, so it is not a final
+benchmark. It was used only to catch broad regressions before continuing SFT.
+
+| task | base `LiquidAI/LFM2.5-8B-A1B` | CPT `LFM2.5-8B-A1B-KO-CPT-FULL` |
+|---|---:|---:|
+| ARC Challenge acc | 0.2000 | 0.2000 |
+| HellaSwag acc | 0.4200 | 0.3800 |
+| GSM8K exact match | 0.4600 | 0.2200 |
+| IFEval strict prompt acc | 0.1600 | 0.1200 |
+| TruthfulQA MC2 acc | 0.5546 | 0.5407 |
+
+CPT is Korean-knowledge heavy and does not improve these small English/general
+sanity slices. The SFT stages are intended to recover instruction following,
+reasoning format, legal/finance QA, tool use, and coding behavior.
 
 ## Evaluation Plan
 
