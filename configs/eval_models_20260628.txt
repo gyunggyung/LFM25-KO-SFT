@@ -1,0 +1,4 @@
+# Run after the current 8-GPU training job releases GPUs, or lower GPU_COUNT.
+LiquidAI/LFM2.5-8B-A1B
+LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL
+LLM-OS-Models/LFM2.5-8B-A1B-KO-SFT

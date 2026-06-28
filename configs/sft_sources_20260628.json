@@ -1,0 +1,123 @@
+{
+  "model": {
+    "base_model": "LiquidAI/LFM2.5-8B-A1B",
+    "cpt_model": "/home/work/.data/lfm2_ko_cpt/models/LFM2.5-8B-A1B-KO-CPT-FULL-20260628_lfm25_8b_ko_cpt_full_lfmstyle/final_full",
+    "target_repo": "LLM-OS-Models/LFM2.5-8B-A1B-KO-SFT"
+  },
+  "output_root": "/home/work/.data/lfm2_ko_sft",
+  "epochs": 3,
+  "seed": 60628,
+  "prepared_sources": [
+    {
+      "id": "lfm25_terminal_toolbench_full",
+      "path": "/home/work/.data/hrm_text_prepared/kohrm_sft_lfm25_terminal_toolbench_full_v1",
+      "category": "terminal_tool_agent",
+      "priority": 1,
+      "role": "Preserve LFM terminal/tool-call behavior and JSON command protocol."
+    },
+    {
+      "id": "behavior_core",
+      "path": "/home/work/.data/hrm_text_prepared/kohrm_sft_behavior_core_v1",
+      "category": "behavior_mix",
+      "priority": 1,
+      "role": "Existing balanced terminal/tool/SWE/reasoning/legal/finance behavior mix."
+    },
+    {
+      "id": "swe_zero_full",
+      "path": "/home/work/.data/hrm_text_prepared/sft_swe_zero_v1",
+      "category": "coding_swe",
+      "priority": 1,
+      "role": "Coding and software engineering repair data."
+    },
+    {
+      "id": "swe_zero_30m",
+      "path": "/home/work/.data/hrm_text_prepared/kohrm_sft_comp_swe_zero_30m_v1",
+      "category": "coding_swe",
+      "priority": 2,
+      "role": "Compact SWE supplement; may overlap with behavior_core."
+    },
+    {
+      "id": "agent_reasoning_25m",
+      "path": "/home/work/.data/hrm_text_prepared/kohrm_sft_comp_agent_reasoning_25m_v1",
+      "category": "agent_reasoning",
+      "priority": 2,
+      "role": "General agent/reasoning preservation data."
+    },
+    {
+      "id": "glm_reasoning",
+      "path": "/home/work/.data/hrm_text_prepared/sft_glm_reasoning_v1",
+      "category": "reasoning_preservation",
+      "priority": 2,
+      "role": "English/general reasoning preservation data."
+    },
+    {
+      "id": "hf_extra_reasoning_agent_mm",
+      "path": "/home/work/.data/hrm_text_prepared/hf_extra_reasoning_agent_mm_v1",
+      "category": "reasoning_preservation",
+      "priority": 2,
+      "role": "Additional HF agent/reasoning data."
+    },
+    {
+      "id": "korean_legal_tasks_full",
+      "path": "/home/work/.data/hrm_text_prepared/korean_legal_tasks_full_v1",
+      "category": "korean_legal",
+      "priority": 1,
+      "role": "Korean legal QA/task data."
+    },
+    {
+      "id": "finance_kor_full",
+      "path": "/home/work/.data/hrm_text_prepared/sft_bcai_finance_kor_v1",
+      "category": "korean_finance",
+      "priority": 1,
+      "role": "Korean finance instruction data."
+    },
+    {
+      "id": "text2sql_clean_duckdb",
+      "path": "/home/work/.data/hrm_text_prepared/kohrm_sft_text2sql_core_clean_duckdb_v1",
+      "category": "coding_data_sql",
+      "priority": 2,
+      "role": "Text2SQL/code-like structured reasoning supplement."
+    }
+  ],
+  "jsonl_sources": [
+    {
+      "id": "legal_source_agent",
+      "path": "/home/work/.data/lfm2_ko_cpt/datasets/shards_full_lfmstyle_20260627/006_ko_legal_source_agent_sft_20260621.jsonl",
+      "category": "legal_rag",
+      "priority": 1
+    },
+    {
+      "id": "legal_rag_round15",
+      "path": "/home/work/.data/lfm2_ko_cpt/datasets/shards_full_lfmstyle_20260627/007_ko_legal_rag_agent_sft_round15_v2.jsonl",
+      "category": "legal_rag",
+      "priority": 1
+    },
+    {
+      "id": "current_law_bar_json",
+      "path": "/home/work/.data/lfm2_ko_cpt/datasets/shards_full_lfmstyle_20260627/008_current_law_bar_json_answer_sft_20260621.jsonl",
+      "category": "legal_bar_mcqa",
+      "priority": 1
+    },
+    {
+      "id": "lfm25_terminal_toolbench_hrm_turns_jsonl",
+      "path": "/home/work/.data/lfm2_ko_cpt/datasets/shards_full_lfmstyle_20260627/009_lfm25_terminal_toolbench_hrm_turns_v1.jsonl",
+      "category": "terminal_tool_agent",
+      "priority": 2,
+      "note": "Kept for JSONL-level QA/dedupe; prepared tokenized version is the primary training source."
+    }
+  ],
+  "external_downloads": [
+    {
+      "id": "llm_ko_datasets_repo",
+      "type": "git",
+      "url": "https://github.com/gyunggyung/LLM-Ko-Datasets",
+      "target": "/home/work/.data/lfm2_ko_sft/downloads/LLM-Ko-Datasets"
+    },
+    {
+      "id": "lfm_terminal_toolbench_sft_model_snapshot",
+      "type": "hf_model",
+      "repo_id": "LLM-OS-Models/LFM2.5-8B-A1B-Terminal-ToolBench-Full-SFT-1Epoch",
+      "target": "/home/work/.data/lfm2_ko_sft/downloads/hf_models/LFM2.5-8B-A1B-Terminal-ToolBench-Full-SFT-1Epoch"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+# Keep one task group per GPU slot. Add Korean task names after confirming they
+# are installed in the local lm-eval registry.
+ifeval
+gsm8k
+arc_challenge,hellaswag
+truthfulqa_mc2
