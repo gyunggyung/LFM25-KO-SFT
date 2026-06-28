@@ -20,8 +20,8 @@
 | Stage1 4k finance/Text2SQL | 8 x H200 학습 중 | 2,302,304 samples, 1,285,864,494 tokens, 17,987 planned steps |
 | Stage1 8k legal/terminal | 준비 완료 | 1,600,835 samples, 1,658,848,754 tokens |
 | Stage2 diverse KO/SWE/reasoning | 준비 완료 | 1,467,864 samples, 1,364,349,642 tokens, raw CPT corpus 제외 |
-| Stage2 plus KoTSQA | CPU 전처리 중 | KoTSQA train split만 추가, test split은 평가용으로 보류 |
-| SFT 합계 | 준비/진행 | 1.286B + 1.659B + 1.364B = 4.309B tokens before KoTSQA |
+| Stage2 plus KoTSQA | 준비 완료 | 1,468,598 samples, 1,364,863,776 tokens; KoTSQA train split만 추가 |
+| SFT 합계 | 준비/진행 | 1.286B + 1.659B + 1.364864B = 4.309577B tokens |
 
 Stage1 4k의 2026-06-28 16:41 KST 기준 실측 속도는 약 57-59 examples/sec,
 약 2.2초/update step이다. 8 GPU VRAM은 GPU당 약 105-136GB까지 사용 중이다.
@@ -71,7 +71,7 @@ Prepared subtotal: about **3.579B tokens** before dedupe/weighting.
 | Stage1 4k finance/Text2SQL | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage1_ko_finance_terminal_text2sql_4k_finance_text2sql` | 4096 | 2,302,304 | 1,285,864,494 | ready |
 | Stage1 8k legal/terminal | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage1_ko_finance_terminal_text2sql_8k_legal_terminal` | 8192 | 1,600,835 | 1,658,848,754 | ready |
 | Stage2 diverse KO/SWE/reasoning | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage2_diverse_ko_swe_reasoning_4k` | 4096 | 1,467,864 | 1,364,349,642 | ready |
-| Stage2 plus KoTSQA | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage2_plus_kotsqa_4k` | 4096 | pending | pending | preparing |
+| Stage2 plus KoTSQA | `/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage2_plus_kotsqa_4k` | 4096 | 1,468,598 | 1,364,863,776 | ready |
 
 ## JSONL SFT Shards
 
@@ -144,7 +144,7 @@ Stage1 전체를 같은 effective batch 128로 1 epoch 돌리면:
 |---:|---|---:|---|
 | 1 | Stage1 4k finance/Text2SQL | 1.286B | 2026-06-29 03:15-03:45 KST |
 | 2 | Stage1 8k legal/terminal | 1.659B | 2026-06-29 19:30-2026-06-30 01:30 KST |
-| 3 | Stage2 4k diverse plus KoTSQA | 1.364B + KoTSQA train | 2026-06-30 07:30-14:00 KST |
+| 3 | Stage2 4k diverse plus KoTSQA | 1.364864B | 2026-06-30 07:30-14:00 KST |
 
 8k split은 토큰 길이가 길어서 4k split보다 느릴 수 있다. 완료 시간은 각 stage가
 시작되면 `train_log.jsonl`의 실제 속도로 갱신한다.
@@ -182,6 +182,8 @@ KoTSQA 보강:
 - Source: <https://huggingface.co/datasets/etri-lirs/KoTSQA-v.2.0>
 - 학습 사용: `train` split only
 - 평가 보류: `test` split
+- 변환 결과: 750 samples, 514,134 tokens
+- merge 결과: Stage2 plus KoTSQA 1,468,598 samples, 1,364,863,776 tokens
 - 변환 스크립트: `scripts/convert_kotsqa_to_lfm_sft_jsonl.py`
 - 준비/merge 스크립트: `scripts/run_prepare_lfmchat_kotsqa_stage2_plus.sh`
 - 목적: 한국어 표/문서 근거 QA, multi-hop QA, false-premise correction 보강

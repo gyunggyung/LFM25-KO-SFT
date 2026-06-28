@@ -40,13 +40,13 @@ Training is in progress. Do not treat this card as a final benchmark report yet.
 | Stage1 4k finance/Text2SQL | running | 2,302,304 | 1,285,864,494 | 4096 | 8 x H200 full SFT, 17,987 planned steps |
 | Stage1 8k legal/terminal | prepared | 1,600,835 | 1,658,848,754 | 8192 | ready for next training phase |
 | Stage2 diverse KO/SWE/reasoning | prepared | 1,467,864 | 1,364,349,642 | 4096 | excludes raw CPT corpora |
-| Stage2 plus KoTSQA | preparing | pending | pending | 4096 | adds KoTSQA train split only |
+| Stage2 plus KoTSQA | prepared | 1,468,598 | 1,364,863,776 | 4096 | adds KoTSQA train split only |
 
-Current staged SFT total before KoTSQA is about **4.309B tokens**:
+Current staged main SFT total is about **4.309577B tokens**:
 
 - Stage1 4k finance/Text2SQL: 1.286B tokens
 - Stage1 8k legal/terminal: 1.659B tokens
-- Stage2 diverse KO/SWE/reasoning: 1.364B tokens
+- Stage2 diverse plus KoTSQA: 1.364864B tokens
 
 ETA from the 2026-06-28 16:41 KST status:
 

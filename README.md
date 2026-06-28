@@ -17,8 +17,8 @@ This workspace prepares, trains, evaluates, and publishes
 | Stage1 4k finance/Text2SQL full SFT | running on 8 x H200 | 2,302,304 samples, 1.286B tokens, 17,987 planned steps |
 | Stage1 8k legal/terminal prepared set | ready | 1,600,835 samples, 1.659B tokens |
 | Stage2 diverse KO/SWE/reasoning prepared set | ready | 1.364B tokens, excludes raw CPT-style corpora |
-| Stage2 plus KoTSQA | preparing on CPU | adds `etri-lirs/KoTSQA-v.2.0` train split only |
-| SFT token total | staged | 1.286B + 1.659B + 1.364B = 4.309B before KoTSQA |
+| Stage2 plus KoTSQA | ready | 1,468,598 samples, 1.364864B tokens; adds `etri-lirs/KoTSQA-v.2.0` train split only |
+| Main SFT token total | staged | 1.286B + 1.659B + 1.364864B = 4.309577B |
 | Evaluation results | partial | quick base/CPT sanity slice exists; SFT eval deferred to keep GPUs training |
 
 The active run uses full-parameter SFT, not LoRA. The working launcher is
@@ -95,6 +95,7 @@ Important prepared sets:
 | Stage1 4k finance/Text2SQL | `20260628_lfmchat_stage1_ko_finance_terminal_text2sql_4k_finance_text2sql` | 4096 | 2,302,304 | 1,285,864,494 |
 | Stage1 8k legal/terminal | `20260628_lfmchat_stage1_ko_finance_terminal_text2sql_8k_legal_terminal` | 8192 | 1,600,835 | 1,658,848,754 |
 | Stage2 diverse KO/SWE/reasoning | `20260628_lfmchat_stage2_diverse_ko_swe_reasoning_4k` | 4096 | 1,467,864 | 1,364,349,642 |
+| Stage2 plus KoTSQA | `20260628_lfmchat_stage2_plus_kotsqa_4k` | 4096 | 1,468,598 | 1,364,863,776 |
 
 See the data plan for source URLs, local paths, and ratios.
 
@@ -128,7 +129,7 @@ ETA from the 2026-06-28 16:41 KST status:
 |---|---:|---:|
 | Stage1 4k train | 1.286B | 2026-06-29 03:15-03:45 KST |
 | Stage1 8k train | 1.659B | 2026-06-29 19:30-2026-06-30 01:30 KST |
-| Stage2 diverse plus KoTSQA train | 1.364B + KoTSQA train | 2026-06-30 07:30-14:00 KST |
+| Stage2 diverse plus KoTSQA train | 1.364864B | 2026-06-30 07:30-14:00 KST |
 
 These windows are estimates and should be refreshed from `train_log.jsonl` after
 each stage starts.
