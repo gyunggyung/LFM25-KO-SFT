@@ -1,0 +1,26 @@
+{
+  "source": "https://huggingface.co/LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL",
+  "notes": "Reference Base/CPT numbers copied from the CPT model card so the Stage2 eval only needs to run KO-SFT for already-evaluated tasks.",
+  "tasks": {
+    "leaderboard_ifeval": {"metric": "prompt_level_loose_acc,none", "Base": 0.2902, "CPT": 0.3457},
+    "ifeval": {"metric": "prompt_level_loose_acc,none", "Base": 0.2921, "CPT": 0.3216},
+    "gsm8k": {"metric": "exact_match,flexible-extract", "Base": 0.4845, "CPT": 0.5701},
+    "boolq": {"metric": "acc,none", "Base": 0.6544, "CPT": 0.7902},
+    "arc_challenge": {"metric": "acc_norm,none", "Base": 0.3771, "CPT": 0.4241},
+    "piqa": {"metric": "acc_norm,none", "Base": 0.7203, "CPT": 0.7476},
+    "global_mmlu_full_ko_medical_genetics": {"metric": "acc,none", "Base": 0.2900, "CPT": 0.3800},
+    "global_mmlu_full_ko_nutrition": {"metric": "acc,none", "Base": 0.2549, "CPT": 0.3203},
+    "global_mmlu_full_ko_philosophy": {"metric": "acc,none", "Base": 0.2669, "CPT": 0.3215},
+    "global_mmlu_full_ko_miscellaneous": {"metric": "acc,none", "Base": 0.3372, "CPT": 0.3921},
+    "global_mmlu_full_ko_professional_medicine": {"metric": "acc,none", "Base": 0.3235, "CPT": 0.2316},
+    "global_mmlu_full_ko_high_school_statistics": {"metric": "acc,none", "Base": 0.2870, "CPT": 0.1574},
+    "global_mmlu_full_ko_astronomy": {"metric": "acc,none", "Base": 0.3421, "CPT": 0.2829},
+    "global_mmlu_full_ko_high_school_computer_science": {"metric": "acc,none", "Base": 0.3100, "CPT": 0.2800},
+    "global_mmlu_full_ko_jurisprudence": {"metric": "acc,none", "Base": 0.2870, "CPT": 0.2685},
+    "kmmlu_direct_hard": {"metric": "acc,none", "Base": 0.2015, "CPT": 0.1720},
+    "kmmlu_direct_hard_stem": {"metric": "acc,none", "Base": 0.1973, "CPT": 0.1564},
+    "mmlu_prox_lite_ko": {"metric": "exact_match,custom-extract", "Base": 0.2585, "CPT": 0.1667},
+    "mmlu_pro_law": {"metric": "exact_match,custom-extract", "Base": 0.1840, "CPT": 0.1240, "note": "CPT card used LIMIT=500 for this diagnostic."},
+    "mmlu_pro_economics": {"metric": "exact_match,custom-extract", "Base": 0.4277, "CPT": 0.4704}
+  }
+}

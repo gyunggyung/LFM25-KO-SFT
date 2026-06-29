@@ -1,0 +1,6 @@
+# Slower or not-yet-CPT-carded official LFM axes. Run after Agentic training
+# so they do not block the next training stage.
+minerva_math500,aime25
+truthfulqa_mc2
+mmlu_pro_law
+mmlu_pro_economics

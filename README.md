@@ -10,6 +10,7 @@ This workspace prepares, trains, evaluates, and publishes
 - External evaluation harnesses: [`docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md`](docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md)
 - Agent harness: [`docs/AGENT_HARNESS_20260629.ko.md`](docs/AGENT_HARNESS_20260629.ko.md)
 - Agentic/Fable follow-up chain: [`docs/AGENTIC_FABLE_CHAIN_20260630.ko.md`](docs/AGENTIC_FABLE_CHAIN_20260630.ko.md)
+- LinkedIn benchmark plan: [`docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md`](docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md)
 - Agentic eval tasks: [`agent_harness/agentic_eval_tasks.jsonl`](agent_harness/agentic_eval_tasks.jsonl)
 - Public Hugging Face datasets: [`docs/HF_DATASETS_20260629.ko.md`](docs/HF_DATASETS_20260629.ko.md)
 - Hugging Face model card source: [`model_card.md`](model_card.md)

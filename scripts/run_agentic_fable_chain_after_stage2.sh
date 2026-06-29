@@ -69,7 +69,13 @@ if [ "${STAGE2_PARALLEL_UPLOAD:-1}" = "1" ]; then
   terminate_stage2_train_after_final
 fi
 
-if [ "${RUN_STAGE2_GATE_EVAL:-1}" = "1" ]; then
+if [ "${RUN_STAGE2_LINKEDIN_FULL_EVAL:-1}" = "1" ]; then
+  echo "stage2_linkedin_full_eval_launch=$(TZ=Asia/Seoul date '+%F %T KST')" | tee -a "$LOG"
+  RUN_ID="${STAGE2_LINKEDIN_RUN_ID:-20260630_stage2_linkedin_full}" \
+  GPU_COUNT=8 \
+  MAX_MODEL_LEN=8192 \
+  bash scripts/run_stage2_linkedin_full_eval.sh 2>&1 | tee -a "$LOG"
+elif [ "${RUN_STAGE2_GATE_EVAL:-1}" = "1" ]; then
   echo "stage2_gate_eval_launch=$(TZ=Asia/Seoul date '+%F %T KST')" | tee -a "$LOG"
   RUN_ID="${STAGE2_GATE_RUN_ID:-20260630_stage2_gate_limit50}" \
   LIMIT="${STAGE2_GATE_LIMIT:-50}" \
@@ -134,6 +140,14 @@ if [ "${RUN_AGENTIC_FINAL_EVAL:-1}" = "1" ]; then
   CUDA_VISIBLE_DEVICES=0 \
   PORT=1053 \
   bash scripts/run_agentic_fable_eval_smoke.sh 2>&1 | tee -a "$LOG"
+fi
+
+if [ "${RUN_OFFICIAL_SUPPLEMENT_EVAL:-1}" = "1" ]; then
+  echo "official_supplement_eval_launch=$(TZ=Asia/Seoul date '+%F %T KST')" | tee -a "$LOG"
+  RUN_ID="${OFFICIAL_SUPPLEMENT_RUN_ID:-20260630_official_supplement_after_agentic}" \
+  GPU_COUNT=8 \
+  MAX_MODEL_LEN=8192 \
+  bash scripts/run_official_supplement_after_agentic_eval.sh 2>&1 | tee -a "$LOG"
 fi
 
 echo "agentic_chain_done=$(TZ=Asia/Seoul date '+%F %T KST')" | tee -a "$LOG"
