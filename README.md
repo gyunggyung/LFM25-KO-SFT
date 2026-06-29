@@ -4,6 +4,7 @@ This workspace prepares, trains, evaluates, and publishes
 `LLM-OS-Models/LFM2.5-8B-A1B-KO-SFT`.
 
 - Korean guide: [`docs/SFT_DATA_PLAN_20260628.ko.md`](docs/SFT_DATA_PLAN_20260628.ko.md)
+- Stage rationale: [`docs/SFT_STAGE_AND_AGENTIC_RATIONALE_20260629.ko.md`](docs/SFT_STAGE_AND_AGENTIC_RATIONALE_20260629.ko.md)
 - Runbook: [`docs/RUNBOOK_20260628.ko.md`](docs/RUNBOOK_20260628.ko.md)
 - Final evaluation plan: [`docs/EVAL_PLAN_FINAL_SFT_20260628.ko.md`](docs/EVAL_PLAN_FINAL_SFT_20260628.ko.md)
 - External evaluation harnesses: [`docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md`](docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md)
