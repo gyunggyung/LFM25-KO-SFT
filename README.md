@@ -8,6 +8,7 @@ This workspace prepares, trains, evaluates, and publishes
 - Final evaluation plan: [`docs/EVAL_PLAN_FINAL_SFT_20260628.ko.md`](docs/EVAL_PLAN_FINAL_SFT_20260628.ko.md)
 - External evaluation harnesses: [`docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md`](docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md)
 - Agent harness: [`docs/AGENT_HARNESS_20260629.ko.md`](docs/AGENT_HARNESS_20260629.ko.md)
+- Agentic/Fable follow-up chain: [`docs/AGENTIC_FABLE_CHAIN_20260630.ko.md`](docs/AGENTIC_FABLE_CHAIN_20260630.ko.md)
 - Hugging Face model card source: [`model_card.md`](model_card.md)
 - Target Hub repo: <https://huggingface.co/LLM-OS-Models/LFM2.5-8B-A1B-KO-SFT>
 - Base model: <https://huggingface.co/LiquidAI/LFM2.5-8B-A1B>
@@ -18,11 +19,12 @@ This workspace prepares, trains, evaluates, and publishes
 |---|---|---|
 | Stage0 legal full SFT | done | `/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-SFT-stage0-legal-20260628/final_full` |
 | Stage0b finance/Text2SQL full SFT | done/uploaded | `/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-SFT-stage0b-finance-text2sql-20260628/final_full` |
-| Stage1 4k finance/Text2SQL full SFT | running on 8 x H200 | 2,302,304 samples, 1.286B tokens, 17,987 planned steps |
+| Stage1 4k finance/Text2SQL full SFT | done/uploaded | 2,302,304 samples, 1.286B tokens |
 | Stage1 8k legal/terminal prepared set | ready | 1,600,835 samples, 1.659B tokens |
 | Stage2 diverse KO/SWE/reasoning prepared set | ready | 1.364B tokens, excludes raw CPT-style corpora |
 | Stage2 plus KoTSQA | ready | 1,468,598 samples, 1.364864B tokens; adds `etri-lirs/KoTSQA-v.2.0` train split only |
 | Main SFT token total | staged | 1.286B + 1.659B + 1.364864B = 4.309577B |
+| Stage3 Agentic/Fable SFT | prepared by chain | Fable5 KO + Helio KO + local docs/logs grounding, 8k context |
 | Evaluation results | partial | quick base/CPT sanity slice exists; SFT eval deferred to keep GPUs training |
 
 The active run uses full-parameter SFT, not LoRA. The working launcher is
@@ -117,8 +119,10 @@ only. The `test` split is intentionally held out for later Korean QA evaluation.
 1. Stage1 4k finance/Text2SQL on 8 GPUs.
 2. Stage1 8k legal/terminal for legal long-context and tool behavior.
 3. Stage2 4k diverse KO/SWE/reasoning plus KoTSQA.
-4. Run the final vLLM/lm-eval comparison table and update the model card.
-5. Run external harnesses for official-card items that are not in local lm-eval.
+4. Run the Stage2 quick vLLM gate comparison.
+5. Run Agentic/Fable SFT for document/log grounded terminal behavior.
+6. Run the agentic quick vLLM comparison and agent harness smoke.
+7. Update the model cards and expand official-card harnesses.
 
 Priority rule: keep the full SFT chain running first. CPU/network setup, docs,
 and harness installation can run in parallel, but GPU evaluation waits until a
@@ -129,20 +133,57 @@ Automatic chain sessions:
 ```bash
 tmux attach -t lfm2ko_chain_after_stage1_20260628
 tmux attach -t lfm2ko_chain_stage2_after_8k_20260628
-tmux attach -t lfm2ko_chain_final_eval_after_stage2_20260628
+tmux attach -t lfm2ko_chain_agentic_after_stage2_20260630
 tmux attach -t lfm2ko_setup_external_harnesses_20260628
 ```
 
-ETA from the 2026-06-28 19:15 KST status:
+ETA refreshed from the 2026-06-29 15:05 KST status:
 
 | item | tokens | estimate |
 |---|---:|---:|
-| Stage1 4k train | 1.286B | 2026-06-29 03:20-03:35 KST |
-| Stage1 8k train | 1.659B | 2026-06-29 19:30-2026-06-30 01:30 KST |
-| Stage2 diverse plus KoTSQA train | 1.364864B | 2026-06-30 07:30-14:00 KST |
+| Stage1 8k train | 1.659B | 2026-06-29 19:15-19:45 KST |
+| Stage2 diverse plus KoTSQA train | 1.364864B | 2026-06-30 02:30-04:00 KST |
+| Stage2 quick gate eval | limit 50 | 2026-06-30 05:30-07:30 KST |
+| Agentic/Fable SFT | Fable/log/doc SFT | 2026-06-30 08:00-12:00 KST |
+| Agentic quick eval + smoke | limit 50 + harness | 2026-06-30 13:00-15:30 KST |
 
 These windows are estimates and should be refreshed from `train_log.jsonl` after
 each stage starts.
+
+The follow-up chain intentionally skips GRPO/RLVR for the June 30 deadline.
+Agentic behavior is trained with SFT traces first; RLVR should be a later
+experiment only after tool success metrics and reward checks are stable.
+
+## Agentic/Fable Follow-Up
+
+The June 30 follow-up makes the model behave more like Fable-style terminal
+agents: read evidence, inspect logs, choose safe commands, explain the cause,
+and verify results. It is SFT-only.
+
+Prepared sources:
+
+- Fable5 Korean traces:
+  `/home/work/.projects/LLM-OS-Models/Terminal/fable_distillation/datasets_ko/fable5_ko_sft_20260624.jsonl`
+- Helio Korean reasoning traces:
+  `/home/work/.projects/LLM-OS-Models/Terminal/fable_distillation/datasets_ko/helio_ko_sft_20260628.jsonl`
+- Local grounded examples generated from this workspace's README, runbook,
+  train logs, git push error patterns, and vLLM/agent harness docs.
+
+Preparation:
+
+```bash
+cd /home/work/.projects/LLM-OS-Models/Terminal/lfm2_ko_sft
+bash scripts/run_prepare_lfmchat_agentic_fable_grounded.sh
+```
+
+Automatic Stage2 -> gate eval -> Agentic SFT -> agentic eval chain:
+
+```bash
+tmux new -d -s lfm2ko_chain_agentic_after_stage2_20260630 \
+  'cd /home/work/.projects/LLM-OS-Models/Terminal/lfm2_ko_sft && bash scripts/run_agentic_fable_chain_after_stage2.sh'
+```
+
+Details: [`docs/AGENTIC_FABLE_CHAIN_20260630.ko.md`](docs/AGENTIC_FABLE_CHAIN_20260630.ko.md).
 
 ## Quick Eval Snapshot
 

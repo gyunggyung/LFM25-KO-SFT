@@ -1,0 +1,6 @@
+ifeval
+gsm8k
+global_mmlu_ko
+kmmlu_direct_hard
+arc_challenge,hellaswag
+truthfulqa_mc2
