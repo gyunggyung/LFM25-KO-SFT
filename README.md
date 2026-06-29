@@ -7,6 +7,7 @@ This workspace prepares, trains, evaluates, and publishes
 - Runbook: [`docs/RUNBOOK_20260628.ko.md`](docs/RUNBOOK_20260628.ko.md)
 - Final evaluation plan: [`docs/EVAL_PLAN_FINAL_SFT_20260628.ko.md`](docs/EVAL_PLAN_FINAL_SFT_20260628.ko.md)
 - External evaluation harnesses: [`docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md`](docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md)
+- Agent harness: [`docs/AGENT_HARNESS_20260629.ko.md`](docs/AGENT_HARNESS_20260629.ko.md)
 - Hugging Face model card source: [`model_card.md`](model_card.md)
 - Target Hub repo: <https://huggingface.co/LLM-OS-Models/LFM2.5-8B-A1B-KO-SFT>
 - Base model: <https://huggingface.co/LiquidAI/LFM2.5-8B-A1B>
@@ -233,6 +234,49 @@ bash scripts/setup_external_eval_harnesses.sh
 
 The detailed command sheet is
 [`docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md`](docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md).
+
+## Agent Harness
+
+The bounded agent harness lives in `agent_harness/`. It is designed for the
+tasks the SFT mix should support well: Korean legal/finance QA, terminal/tool
+status work, Text2SQL, small code-assistant tasks, and Korean instruction
+following.
+
+GPU-free smoke test:
+
+```bash
+cd /home/work/.projects/LLM-OS-Models/Terminal/lfm2_ko_sft
+bash scripts/run_lfm2ko_agent_smoke_eval.sh
+```
+
+Final-model endpoint test after training/evaluation:
+
+```bash
+OPENAI_BASE_URL=http://localhost:1053/v1 \
+OPENAI_API_KEY=EMPTY \
+MODEL_NAME=lfm2-ko-sft \
+bash scripts/run_lfm2ko_agent_harness.sh \
+  "README.md를 읽고 이 모델의 학습/평가 실행법을 한국어로 요약해라."
+```
+
+Details: [`docs/AGENT_HARNESS_20260629.ko.md`](docs/AGENT_HARNESS_20260629.ko.md).
+
+The same harness also supports CPU GGUF through llama.cpp:
+
+```bash
+MODEL_GGUF=/path/to/LFM2.5-8B-A1B-KO-SFT-Q8_0.gguf \
+CTX_SIZE=8192 \
+PORT=8080 \
+bash scripts/start_llamacpp_gguf_server_for_agent.sh
+
+AGENT_BACKEND=llamacpp \
+OPENAI_BASE_URL=http://localhost:8080/v1 \
+MODEL_NAME=lfm2-ko-sft-gguf \
+bash scripts/run_lfm2ko_agent_harness.sh \
+  --context-window 8192 \
+  --prompt-budget 20000 \
+  "README.md를 요약해라."
+```
 
 ## Colab / Inference Example
 

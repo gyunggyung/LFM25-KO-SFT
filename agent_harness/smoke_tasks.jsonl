@@ -1,0 +1,5 @@
+{"id":"legal_mcqa_format","expected_profile":"ko_legal","prompt":"다음 변시형 문제를 풀어라. 민법상 착오 취소 요건을 묻는 문제라고 가정하고, 정답 줄을 반드시 `정답:` 형식으로 써라."}
+{"id":"finance_ratio","expected_profile":"ko_finance","prompt":"매출 100억, 영업이익 12억, 순이익 8억인 회사의 영업이익률과 순이익률을 계산하고 투자 조언이 아니라 지표 설명으로 답해라."}
+{"id":"terminal_status","expected_profile":"terminal_tool","prompt":"README.md를 보고 현재 이 폴더의 실행법을 요약해라. 필요한 경우 파일을 읽어라."}
+{"id":"text2sql","expected_profile":"text2sql","prompt":"orders(order_id, user_id, amount, created_at) 스키마에서 2026년 월별 매출 합계를 구하는 DuckDB SQL을 작성해라."}
+{"id":"code_assistant","expected_profile":"code_assistant","prompt":"이 저장소에서 agent_harness 파이썬 파일 문법 검사를 하는 명령을 알려주고, 실패하면 어디를 봐야 하는지 설명해라."}
