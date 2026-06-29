@@ -23,6 +23,13 @@ Korean full-parameter SFT continuation of
 `LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL`, based on
 `LiquidAI/LFM2.5-8B-A1B`.
 
+- GitHub: <https://github.com/gyunggyung/LFM25-KO-SFT>
+- CPT GitHub: <https://github.com/gyunggyung/LFM25-KO-CPT>
+- CPT base checkpoint: <https://huggingface.co/LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL>
+- Agentic follow-up repo: <https://huggingface.co/LLM-OS-Models/LFM2.5-8B-A1B-KO-Agentic-SFT>
+- Public data releases: 14 Hugging Face dataset repos are published with
+  `README.md`, `dataset_manifest.json`, and uploaded `data/` files. Combined
+  uploaded size is about 79.94GB, including duplicate raw/tokenized releases.
 - Korean section: [한국어 설명](#한국어-설명)
 - Base model: <https://huggingface.co/LiquidAI/LFM2.5-8B-A1B>
 - Liquid prompting docs: <https://docs.liquid.ai/lfm/key-concepts/text-generation-and-prompting>
@@ -32,15 +39,18 @@ Korean full-parameter SFT continuation of
 ## Status
 
 Training is in progress. Do not treat this card as a final benchmark report yet.
+Stage2 is the main KO-SFT model line. Stage3 Agentic/Fable training is published
+separately under `LLM-OS-Models/LFM2.5-8B-A1B-KO-Agentic-SFT`.
 
 | stage | status | samples | tokens | max seq | note |
 |---|---|---:|---:|---:|---|
 | Stage0 legal | completed | 8,747 | 35,068,923 | 8192 | Korean legal source/bar-style warmup |
 | Stage0b finance/Text2SQL | completed/uploaded | 280,000 | 58,090,087 | 4096 | 8 x H200 full SFT, 2,188 planned steps |
-| Stage1 4k finance/Text2SQL | running | 2,302,304 | 1,285,864,494 | 4096 | 8 x H200 full SFT, 17,987 planned steps |
-| Stage1 8k legal/terminal | prepared | 1,600,835 | 1,658,848,754 | 8192 | ready for next training phase |
+| Stage1 4k finance/Text2SQL | completed/uploaded | 2,302,304 | 1,285,864,494 | 4096 | 8 x H200 full SFT |
+| Stage1 8k legal/terminal | running | 1,600,835 | 1,658,848,754 | 8192 | legal long-context and terminal/tool behavior |
 | Stage2 diverse KO/SWE/reasoning | prepared | 1,467,864 | 1,364,349,642 | 4096 | excludes raw CPT corpora |
 | Stage2 plus KoTSQA | prepared | 1,468,598 | 1,364,863,776 | 4096 | adds KoTSQA train split only |
+| Stage3 Agentic/Fable | separate repo | 3,943 | 7,124,298 | 8192 | Fable5/Helio + local doc/log grounded SFT |
 
 Current staged main SFT total is about **4.309577B tokens**:
 
@@ -48,13 +58,14 @@ Current staged main SFT total is about **4.309577B tokens**:
 - Stage1 8k legal/terminal: 1.659B tokens
 - Stage2 diverse plus KoTSQA: 1.364864B tokens
 
-ETA from the 2026-06-28 16:41 KST status:
+ETA from the 2026-06-29 15:57 KST status:
 
 | stage | estimated completion |
 |---|---|
-| Stage1 4k | 2026-06-29 03:15-03:45 KST |
-| Stage1 8k | 2026-06-29 19:30-2026-06-30 01:30 KST |
-| Stage2 plus KoTSQA | 2026-06-30 07:30-14:00 KST |
+| Stage1 8k | 2026-06-29 19:10-19:45 KST; 9840 / 12507 steps, 78.7% |
+| Stage2 plus KoTSQA | 2026-06-30 02:30-04:00 KST |
+| Stage2 quick gate eval | 2026-06-30 05:30-07:30 KST |
+| Stage3 Agentic/Fable SFT | 2026-06-30 morning KST |
 
 ## Goal
 
@@ -82,6 +93,30 @@ Main source groups:
   <https://huggingface.co/datasets/etri-lirs/KoTSQA-v.2.0>.
 - Korean dataset index reviewed for additional candidates:
   <https://github.com/gyunggyung/LLM-Ko-Datasets>.
+
+Project implementation and runbooks are public at:
+
+- SFT code and docs: <https://github.com/gyunggyung/LFM25-KO-SFT>
+- CPT code and docs: <https://github.com/gyunggyung/LFM25-KO-CPT>
+
+Public dataset releases:
+
+| release | kind | size | source / purpose |
+|---|---|---:|---|
+| [CPT LFM-style full raw](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-CPT-Full-LFMStyle-Raw-20260627) | raw LFM text JSONL | 20.54GB | Korean Wiki, finance, legal, legal RAG/bar-answer, terminal/tool traces |
+| [CPT LFM-style source shards](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-CPT-Full-LFMStyle-Shards-20260627) | source-separated raw shards | 26.20GB | auditable per-source CPT shards |
+| [CPT raw mix before LFM wrapping](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-CPT-Full-Raw-Mix-20260627) | raw JSONL | 4.10GB | pre-conversion CPT mix |
+| [SFT Stage0 legal 8k](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-SFT-Stage0-Legal-LFMChat-8K) | tokenized response-only arrays | 0.16GB | legal source/RAG/bar warmup |
+| [SFT Stage0b finance/Text2SQL 4k](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-SFT-Stage0B-Finance-Text2SQL-LFMChat-4K) | tokenized response-only arrays | 0.26GB | finance and Text2SQL smoke stage |
+| [SFT Stage1 finance/Text2SQL 4k](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-SFT-Stage1-Finance-Text2SQL-LFMChat-4K) | tokenized response-only arrays | 5.24GB | main finance/accounting and Text2SQL stage |
+| [SFT Stage1 legal/terminal 8k](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-SFT-Stage1-Legal-Terminal-LFMChat-8K) | tokenized response-only arrays | 6.71GB | legal long-context and terminal/tool traces |
+| [SFT Stage2 diverse raw](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-SFT-Stage2-Diverse-KoSWE-Reasoning-LFMChat-Raw) | raw LFM chat JSONL | 5.61GB | Korean domain, SWE/coding, reasoning, finance/legal/Text2SQL |
+| [SFT Stage2 diverse 4k](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-SFT-Stage2-Diverse-KoSWE-Reasoning-LFMChat-4K) | tokenized response-only arrays | 5.52GB | Stage2 diverse prepared set |
+| [KoTSQA train raw](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-SFT-Stage2-KoTSQA-Train-LFMChat-Raw) | raw LFM chat JSONL | 0.002GB | KoTSQA v2 train only; test held out |
+| [SFT Stage2 plus KoTSQA 4k](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-SFT-Stage2-Plus-KoTSQA-LFMChat-4K) | tokenized response-only arrays | 5.52GB | planned Stage2 main KO-SFT training set |
+| [Agentic/Fable grounded raw](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-Agentic-Fable-Grounded-LFMChat-Raw) | raw LFM chat JSONL | 0.04GB | Fable5/Helio plus local docs/log grounded traces |
+| [Agentic/Fable grounded 8k](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-Agentic-Fable-Grounded-LFMChat-8K) | tokenized response-only arrays | 0.05GB | Stage3 Agentic/Fable response-only arrays |
+| [Dataset index and sources](https://huggingface.co/datasets/LLM-OS-Models/LFM2.5-KO-Dataset-Index-and-Sources) | source index | tiny | LLM-Ko-Datasets README/LICENSE snapshot |
 
 The current prepared Stage1 pool is about 2.945B tokens:
 
@@ -213,3 +248,8 @@ print(tokenizer.decode(output[0][inputs.shape[-1]:], skip_special_tokens=True))
 vLLM 평가 설정으로 돌린 뒤 업데이트합니다.
 
 한국어 사용 예시는 위 `Usage`와 `Colab Example`을 참고하면 됩니다.
+
+프로젝트 코드와 실행 문서는 GitHub에 공개되어 있습니다.
+
+- SFT: <https://github.com/gyunggyung/LFM25-KO-SFT>
+- CPT: <https://github.com/gyunggyung/LFM25-KO-CPT>

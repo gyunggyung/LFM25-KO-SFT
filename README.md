@@ -9,6 +9,7 @@ This workspace prepares, trains, evaluates, and publishes
 - External evaluation harnesses: [`docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md`](docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md)
 - Agent harness: [`docs/AGENT_HARNESS_20260629.ko.md`](docs/AGENT_HARNESS_20260629.ko.md)
 - Agentic/Fable follow-up chain: [`docs/AGENTIC_FABLE_CHAIN_20260630.ko.md`](docs/AGENTIC_FABLE_CHAIN_20260630.ko.md)
+- Public Hugging Face datasets: [`docs/HF_DATASETS_20260629.ko.md`](docs/HF_DATASETS_20260629.ko.md)
 - Hugging Face model card source: [`model_card.md`](model_card.md)
 - Target Hub repo: <https://huggingface.co/LLM-OS-Models/LFM2.5-8B-A1B-KO-SFT>
 - Base model: <https://huggingface.co/LiquidAI/LFM2.5-8B-A1B>
@@ -26,6 +27,7 @@ This workspace prepares, trains, evaluates, and publishes
 | Main SFT token total | staged | 1.286B + 1.659B + 1.364864B = 4.309577B |
 | Stage3 Agentic/Fable SFT | prepared by chain | Fable5 KO + Helio KO + local docs/logs grounding, 8k context |
 | Evaluation results | partial | quick base/CPT sanity slice exists; SFT eval deferred to keep GPUs training |
+| Public HF datasets | uploaded | 14 dataset repos, all with `data/`, README, and manifest; about 79.94GB uploaded |
 
 The active run uses full-parameter SFT, not LoRA. The working launcher is
 the direct `torchrun` DDP path because the earlier `Trainer` run loaded weights but
