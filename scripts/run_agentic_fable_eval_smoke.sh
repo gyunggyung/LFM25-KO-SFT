@@ -66,5 +66,16 @@ bash scripts/run_lfm2ko_agent_harness.sh \
   "학습 로그를 보면 step/planned/loss/examples_per_sec가 있다. README.md와 docs/RUNBOOK_20260628.ko.md를 참고해서 현재 모델 학습-평가 체인을 점검하는 절차를 한국어로 설명해라." \
   > "$OUT_DIR/agent_harness_grounded_prompt.log" 2>&1
 
+MODE=real \
+AGENT_BACKEND=vllm \
+OPENAI_BASE_URL="http://127.0.0.1:$PORT/v1" \
+OPENAI_API_KEY=EMPTY \
+MODEL_NAME="$SERVED_MODEL_NAME" \
+OUT_DIR="$OUT_DIR" \
+RUN_ID=agentic_eval_suite \
+EXECUTE_TOOLS=1 \
+ALLOW_SHELL=1 \
+bash scripts/run_lfm2ko_agentic_eval.sh > "$OUT_DIR/agentic_eval_suite.log" 2>&1
+
 echo "agentic_smoke_done=$(TZ=Asia/Seoul date '+%F %T KST')"
 echo "out_dir=$OUT_DIR"

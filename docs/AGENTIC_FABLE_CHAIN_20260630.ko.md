@@ -104,7 +104,28 @@ bash scripts/run_stage2_gate_eval_quick.sh
 - `truthfulqa_mc2`
 
 Agentic final은 local Stage2 final과 local Agentic final을 비교한 뒤, vLLM
-OpenAI endpoint로 `agent_harness` smoke를 실행한다.
+OpenAI endpoint로 `agent_harness` smoke와 `agentic_eval` task suite를 실행한다.
+
+```bash
+MODE=real \
+AGENT_BACKEND=vllm \
+OPENAI_BASE_URL=http://localhost:1053/v1 \
+OPENAI_API_KEY=EMPTY \
+MODEL_NAME=lfm2-ko-agentic-sft \
+EXECUTE_TOOLS=1 \
+ALLOW_SHELL=1 \
+bash scripts/run_lfm2ko_agentic_eval.sh
+```
+
+`agent_harness/agentic_eval_tasks.jsonl`의 8개 task는 다음을 본다.
+
+- README/runbook 기반 근거 요약
+- train log 숫자 진단
+- destructive command 없는 shell 계획
+- 작은 코드 수정 계획과 검증 명령
+- 한국어 법률/금융 답변의 근거와 제한
+- Text2SQL
+- 근거 부족 시 확인/보류 행동
 
 ## 마감 기준
 

@@ -36,11 +36,14 @@ bounded harness다.
 ```text
 agent_harness/
   README.md
+  agentic_eval.py
+  agentic_eval_tasks.jsonl
   lfm2ko_agent.py
   profiles.json
   smoke_tasks.jsonl
 scripts/
   run_lfm2ko_agent_harness.sh
+  run_lfm2ko_agentic_eval.sh
   run_lfm2ko_agent_smoke_eval.sh
 ```
 
@@ -53,6 +56,20 @@ bash scripts/run_lfm2ko_agent_smoke_eval.sh
 
 이 명령은 실제 모델을 부르지 않고 profile routing, tool-call parsing, read_file
 흐름만 확인한다.
+
+에이전틱 task suite까지 같이 확인하려면 다음을 실행한다. mock 답변은 실제 성능
+판정용이 아니므로 실패가 있어도 종료 코드는 0으로 둔다.
+
+```bash
+cd /home/work/.projects/LLM-OS-Models/Terminal/lfm2_ko_sft
+bash scripts/run_lfm2ko_agentic_eval.sh
+```
+
+출력은 기본적으로 다음 JSONL에 쌓인다.
+
+```text
+/home/work/.data/lfm2_ko_sft/eval/agentic_harness/<RUN_ID>.jsonl
+```
 
 ## 최종 SFT 모델로 테스트
 
@@ -76,6 +93,19 @@ OPENAI_API_KEY=EMPTY \
 MODEL_NAME=lfm2-ko-sft \
 bash scripts/run_lfm2ko_agent_harness.sh \
   "README.md를 읽고 이 모델의 학습/평가 실행법을 한국어로 요약해라."
+```
+
+vLLM 실제 task suite:
+
+```bash
+MODE=real \
+AGENT_BACKEND=vllm \
+OPENAI_BASE_URL=http://localhost:1053/v1 \
+OPENAI_API_KEY=EMPTY \
+MODEL_NAME=lfm2-ko-sft \
+EXECUTE_TOOLS=1 \
+ALLOW_SHELL=1 \
+bash scripts/run_lfm2ko_agentic_eval.sh
 ```
 
 ## GGUF / llama.cpp CPU 서버
@@ -106,6 +136,20 @@ bash scripts/run_lfm2ko_agent_harness.sh \
   --context-window 8192 \
   --prompt-budget 20000 \
   "README.md를 읽고 이 모델의 학습/평가 실행법을 한국어로 요약해라."
+```
+
+GGUF 실제 task suite:
+
+```bash
+MODE=real \
+AGENT_BACKEND=llamacpp \
+OPENAI_BASE_URL=http://localhost:8080/v1 \
+MODEL_NAME=lfm2-ko-sft-gguf \
+AGENT_CONTEXT_WINDOW=8192 \
+AGENT_PROMPT_BUDGET_CHARS=20000 \
+EXECUTE_TOOLS=1 \
+ALLOW_SHELL=1 \
+bash scripts/run_lfm2ko_agentic_eval.sh
 ```
 
 컨텍스트 기준:
@@ -139,5 +183,11 @@ bash scripts/run_lfm2ko_agent_harness.sh \
 4. Text2SQL: schema가 있을 때 SQL 먼저 출력하는지.
 5. 코드: 작은 수정 계획과 검증 명령을 파일 경로와 함께 쓰는지.
 6. 범위 밖: 최신 가격/웹검색/전문가 조언을 지어내지 않고 제한을 말하는지.
+
+`agent_harness/agentic_eval_tasks.jsonl`의 8개 task는 이 항목들을 빠르게 본다.
+최종 full benchmark가 아니라 학습 직후 agentic 행동이 망가지지 않았는지 확인하는
+gate다. 각 task는 profile 선택, tool 사용 여부, 필수 문자열, 금지 문자열을 JSONL로
+남긴다. 숫자 비교가 필요한 정식 성능표는 별도 vLLM/lm-eval 결과와 합쳐 모델
+카드에 올린다.
 
 결과는 최종 모델 평가 후 README와 모델 카드의 agent behavior 섹션에 반영한다.
