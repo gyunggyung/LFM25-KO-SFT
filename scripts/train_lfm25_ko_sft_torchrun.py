@@ -367,19 +367,31 @@ def main() -> None:
             break
 
     dist.barrier()
+    final_dir = output_dir / "final_full"
     if rank == 0:
         final_dir = save_checkpoint(ddp_model, tokenizer, optimizer, scheduler, output_dir, global_step, args, final=True)
-        if args.push_to_hub:
-            api = HfApi(token=os.environ.get("HF_TOKEN"))
-            api.create_repo(repo_id=args.hub_model_id, private=args.hub_private, exist_ok=True)
-            api.upload_folder(
-                repo_id=args.hub_model_id,
-                folder_path=str(final_dir),
-                path_in_repo=".",
-                commit_message=f"Upload {args.stage_name} final checkpoint",
-            )
     dist.barrier()
+
+    should_upload = rank == 0 and args.push_to_hub
+
+    # Release distributed/GPU state before network-only Hub upload so the next
+    # vLLM eval or training stage can claim the GPUs immediately after final save.
+    del ddp_model
+    del model
+    del optimizer
+    del scheduler
+    torch.cuda.empty_cache()
     dist.destroy_process_group()
+
+    if should_upload:
+        api = HfApi(token=os.environ.get("HF_TOKEN"))
+        api.create_repo(repo_id=args.hub_model_id, private=args.hub_private, exist_ok=True)
+        api.upload_folder(
+            repo_id=args.hub_model_id,
+            folder_path=str(final_dir),
+            path_in_repo=".",
+            commit_message=f"Upload {args.stage_name} final checkpoint",
+        )
 
 
 if __name__ == "__main__":

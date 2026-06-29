@@ -11,6 +11,44 @@ STAGE2_FINAL="${STAGE2_FINAL:-/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-
 AGENTIC_DATA="${AGENTIC_DATA:-/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260630_lfmchat_agentic_fable_grounded_8k}"
 AGENTIC_OUT="${AGENTIC_OUT:-/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-Agentic-SFT-fable-grounded-20260630}"
 AGENTIC_HUB_MODEL_ID="${AGENTIC_HUB_MODEL_ID:-LLM-OS-Models/LFM2.5-8B-A1B-KO-Agentic-SFT}"
+STAGE2_HUB_MODEL_ID="${STAGE2_HUB_MODEL_ID:-LLM-OS-Models/LFM2.5-8B-A1B-KO-SFT}"
+
+launch_model_upload() {
+  local folder="$1"
+  local repo_id="$2"
+  local message="$3"
+  local log_path="$4"
+  echo "hf_upload_background_launch=$(TZ=Asia/Seoul date '+%F %T KST') repo=$repo_id folder=$folder" | tee -a "$LOG"
+  nohup python scripts/upload_model_folder_to_hf.py \
+    --folder "$folder" \
+    --repo-id "$repo_id" \
+    --commit-message "$message" \
+    > "$log_path" 2>&1 &
+  echo "hf_upload_background_pid=$!" | tee -a "$LOG"
+}
+
+terminate_stage2_train_after_final() {
+  if [ "${TERMINATE_STAGE2_TRAIN_AFTER_FINAL:-1}" != "1" ]; then
+    return
+  fi
+  mapfile -t pids < <(pgrep -f "stage2_4k_diverse_kotsqa" || true)
+  if [ "${#pids[@]}" -eq 0 ]; then
+    echo "stage2_train_processes_to_terminate=0" | tee -a "$LOG"
+    return
+  fi
+  echo "stage2_train_processes_terminate=${pids[*]}" | tee -a "$LOG"
+  for pid in "${pids[@]}"; do
+    if [ "$pid" != "$$" ]; then
+      kill -TERM "$pid" 2>/dev/null || true
+    fi
+  done
+  sleep 20
+  for pid in "${pids[@]}"; do
+    if [ "$pid" != "$$" ] && kill -0 "$pid" 2>/dev/null; then
+      kill -KILL "$pid" 2>/dev/null || true
+    fi
+  done
+}
 
 echo "agentic_chain_wait_stage2_start=$(TZ=Asia/Seoul date '+%F %T KST')" | tee -a "$LOG"
 echo "stage2_final=$STAGE2_FINAL" | tee -a "$LOG"
@@ -19,7 +57,17 @@ while [ ! -d "$STAGE2_FINAL" ]; do
   sleep 90
 done
 
-echo "stage2_final_seen=$(TZ=Asia/Seoul date '+%F %T KST')" | tee -a "$LOG"
+python scripts/wait_for_model_dir_ready.py "$STAGE2_FINAL" --stable-sec 20 --checks 2 | tee -a "$LOG"
+echo "stage2_final_ready=$(TZ=Asia/Seoul date '+%F %T KST')" | tee -a "$LOG"
+
+if [ "${STAGE2_PARALLEL_UPLOAD:-1}" = "1" ]; then
+  launch_model_upload \
+    "$STAGE2_FINAL" \
+    "$STAGE2_HUB_MODEL_ID" \
+    "Upload stage2_4k_diverse_kotsqa final checkpoint" \
+    "$LOG_DIR/20260630_stage2_parallel_hf_upload.log"
+  terminate_stage2_train_after_final
+fi
 
 if [ "${RUN_STAGE2_GATE_EVAL:-1}" = "1" ]; then
   echo "stage2_gate_eval_launch=$(TZ=Asia/Seoul date '+%F %T KST')" | tee -a "$LOG"
@@ -55,11 +103,19 @@ SAVE_STEPS="${AGENTIC_SAVE_STEPS:-500}" \
 SAVE_TOTAL_LIMIT=2 \
 LOGGING_STEPS=10 \
 DATALOADER_NUM_WORKERS=0 \
-PUSH_TO_HUB=1 \
 MASTER_PORT="${AGENTIC_MASTER_PORT:-29515}" \
 bash scripts/run_lfm25_ko_sft_torchrun_lfmchat_dataset.sh > "$LOG_DIR/20260630_agentic_fable_grounded.launch.log" 2>&1
 
 echo "agentic_train_done=$(TZ=Asia/Seoul date '+%F %T KST')" | tee -a "$LOG"
+
+python scripts/wait_for_model_dir_ready.py "$AGENTIC_OUT/final_full" --stable-sec 20 --checks 2 | tee -a "$LOG"
+if [ "${AGENTIC_PARALLEL_UPLOAD:-1}" = "1" ]; then
+  launch_model_upload \
+    "$AGENTIC_OUT/final_full" \
+    "$AGENTIC_HUB_MODEL_ID" \
+    "Upload stage3_agentic_fable_grounded final checkpoint" \
+    "$LOG_DIR/20260630_agentic_parallel_hf_upload.log"
+fi
 
 if [ "${RUN_AGENTIC_FINAL_EVAL:-1}" = "1" ]; then
   echo "agentic_final_lm_eval_launch=$(TZ=Asia/Seoul date '+%F %T KST')" | tee -a "$LOG"
