@@ -14,6 +14,7 @@ This workspace prepares, trains, evaluates, and publishes
 - KO-CPT repair SFT plan: [`docs/CPT_REPAIR_SFT_PLAN_20260630.ko.md`](docs/CPT_REPAIR_SFT_PLAN_20260630.ko.md)
 - Bar exam v5 context SFT plan: [`docs/BAR_EXAM_V5_CONTEXT_SFT_PLAN_20260630.ko.md`](docs/BAR_EXAM_V5_CONTEXT_SFT_PLAN_20260630.ko.md)
 - Repair / BarExamV5 SFT result analysis: [`docs/REPAIR_BAR_V5_RESULTS_20260630.ko.md`](docs/REPAIR_BAR_V5_RESULTS_20260630.ko.md)
+- Bar exam v5 custom eval result: [`docs/BAR_EXAM_V5_CUSTOM_EVAL_RESULTS_20260630.ko.md`](docs/BAR_EXAM_V5_CUSTOM_EVAL_RESULTS_20260630.ko.md)
 - LinkedIn benchmark plan: [`docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md`](docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md)
 - Agentic eval tasks: [`agent_harness/agentic_eval_tasks.jsonl`](agent_harness/agentic_eval_tasks.jsonl)
 - Public Hugging Face datasets: [`docs/HF_DATASETS_20260629.ko.md`](docs/HF_DATASETS_20260629.ko.md)
@@ -48,6 +49,7 @@ multiple-choice/exact-extraction tasks. The representative checkpoint remains
 | Stage3 Agentic/Fable SFT | done/uploaded; diagnostic only | 3,943 samples, 7,124,298 tokens; not a public benchmark improvement |
 | KO-CPT Repair-SFT | done/uploaded; diagnostic failed | 188,493 samples, 131,607,379 tokens; below KO-CPT on gate tasks |
 | Repair-BarExamV5-SFT | done/uploaded; narrow legal diagnostic | 6,374 samples, 5,863,863 tokens; jurisprudence up, broad MCQA down |
+| Bar exam v5 custom smoke eval | done; negative | 12-question smoke: KO-CPT 3/12, Repair-SFT 3/12, BarExamV5-SFT 3/12; strict one-answer mode did not improve |
 | Evaluation results | diagnostic complete | Stage2 SFT regressed on most public benchmarks; Agentic only small partial recovery |
 | Public HF datasets | uploaded | 14 dataset repos, all with `data/`, README, and manifest; about 79.94GB uploaded |
 
