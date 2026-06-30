@@ -7,6 +7,10 @@
 컨텍스트 길이를 어떻게 정했는지, 그리고 Agentic/Fable 후속 학습이 어떤 효과를
 노리는지 정리한다.
 
+2026-06-30 사후 업데이트: Stage2 KO-SFT와 Stage3 Agentic/Fable은 공개 벤치
+개선 실험으로 실패했다. 이 문서의 앞부분은 원래 학습 의도이고, 하단의
+사후 분석이 실제 결과와 다음 판단 기준이다.
+
 ## CPT 이후 SFT가 필요한 이유
 
 CPT는 한국어 지식과 도메인 분포를 이식했다. 하지만 CPT는 next-token objective라서
@@ -291,3 +295,82 @@ Agentic 이후:
 
 이 순서를 지키는 이유는 GPU 시간을 낭비하지 않으면서도, 실패했을 때 어느 단계가
 원인인지 분리하기 위해서다.
+
+## 2026-06-30 사후 분석
+
+### 실제 결론
+
+Stage2 KO-SFT는 공개 벤치 개선 모델로 실패했다. Stage3 Agentic/Fable도 공개
+벤치 repair 모델로 실패했다. 현재 대표로 내세울 모델은 KO-CPT다.
+
+| 모델 | 결론 | 이유 |
+|---|---|---|
+| KO-CPT | 현재 최선 기준점 | 공개 벤치에서 Stage2/Stage3보다 강함 |
+| Stage2 KO-SFT | 실패 | IFEval/GSM8K/ARC/PIQA/KMMLU/MMLU-ProX 대부분 하락 |
+| Stage3 Agentic/Fable | 실패 | 일부 소폭 회복만 있고 broad benchmark repair 아님 |
+
+Stage2 주요 하락:
+
+- IFEval prompt loose: CPT 0.3216 -> Stage2 0.1738
+- GSM8K exact: CPT 0.5701 -> Stage2 0.3381
+- ARC-Challenge acc_norm: CPT 0.4241 -> Stage2 0.2287
+- PIQA acc_norm: CPT 0.7476 -> Stage2 0.5930
+- KMMLU direct hard: CPT 0.1720 -> Stage2 0.1055
+- MMLU-ProX Lite KO: CPT 0.1667 -> Stage2 0.0867
+
+Stage2가 제한적으로 나은 항목:
+
+- BoolQ: Base 0.6544 -> Stage2 0.6664, 하지만 CPT 0.7902보다 낮음
+- Global MMLU KO medical genetics: Base 0.2900 -> Stage2 0.3000, 하지만 CPT
+  0.3800보다 낮음
+- Global MMLU KO high school statistics: CPT 0.1574 -> Stage2 0.2222, 하지만
+  Base 0.2870보다 낮음
+
+Stage3 Agentic/Fable은 Global MMLU KO, MMLU-Pro law/economics, GSM8K에서
+작은 회복은 있었지만 KMMLU는 더 낮아졌고 IFEval은 개선되지 않았다.
+
+### 원인
+
+첫째, SFT 데이터의 행동 목표와 공개 벤치의 측정 방식이 달랐다. Stage1/Stage2는
+한국어 법률/금융 설명, 장문 근거 답변, 터미널/툴 로그, Text2SQL, 코딩/SWE,
+KoTSQA 근거 QA를 많이 학습했다. 이 데이터는 assistant가 길고 절차적으로 답하는
+능력을 키우지만, KMMLU/Global MMLU KO/MMLU-ProX처럼 선택지 likelihood나 짧은
+exact answer를 보는 평가를 직접 최적화하지 않는다.
+
+둘째, response-only SFT가 다지선다 선택지 scoring을 직접 보존하지 못했다.
+assistant 답변만 loss를 주는 방식은 chat 행동에는 맞지만, 보기 A/B/C/D 중 하나를
+강하게 고르는 확률분포를 유지하려면 answer-only, final-option, 짧은 rationale,
+보기별 비교 데이터가 충분해야 한다. 이번 mix에는 그 비중이 부족했다.
+
+셋째, KO-CPT가 만든 좋은 확률분포를 4.3B-token SFT가 덮었다. CPT는 한국어 지식과
+일부 general benchmark를 끌어올린 상태였는데, SFT가 그 위에서 chat/domain response
+분포로 이동시켰다. 결과적으로 “더 길게 설명하는 한국어 assistant”가 됐을 수는
+있지만, 공개 벤치에서는 정답 토큰 선택 능력이 약해졌다.
+
+넷째, KoTSQA는 필요한 데이터지만 MCQA repair 데이터가 아니다. KoTSQA는 문서 근거
+QA와 false-premise correction에는 좋다. 하지만 KMMLU/MMLU-ProX식 선택지 문제를
+직접 복구하지 않는다.
+
+다섯째, Agentic/Fable은 애초에 public benchmark repair stage가 아니다. 이 데이터는
+터미널 실행, 로그 읽기, 문서 근거 판단, 안전한 shell 계획을 위한 7.12M-token 소규모
+behavior injection이다. Stage2로 이미 낮아진 공개 점수를 되돌릴 규모와 목적이
+아니었다.
+
+### 해결 방안
+
+사용자 지시에 따라 지금은 추가 학습하지 않는다. 나중에 재개한다면 실패한 SFT
+체크포인트에서 이어가지 말고 KO-CPT에서 다시 시작한다.
+
+권장 실험:
+
+1. 시작점: `LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL`
+2. 규모: 100M-300M tokens의 작은 repair SFT
+3. 데이터: 한국어 다지선다, answer-only, final option, 짧은 rationale,
+   legal/bar JSON, finance/accounting MCQA, KoTSQA train 기반 근거 QA
+4. 제외: benchmark test split, raw CPT 말뭉치, 장문 chat-only 과다 데이터
+5. gate: IFEval, GSM8K, BoolQ, Global MMLU KO, KMMLU direct hard,
+   MMLU-ProX Lite KO
+6. 중지 기준: gate에서 KO-CPT보다 떨어지면 즉시 중단
+
+핵심은 “대용량 SFT를 다시 하는 것”이 아니라, KO-CPT의 좋은 분포를 유지하면서
+정답 형식과 선택지 scoring만 작게 고치는 것이다.

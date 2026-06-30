@@ -1,15 +1,21 @@
 # Agentic Fable SFT Chain - 2026-06-30
 
-목표는 기존 KO SFT가 끝난 뒤 GPU 공백 없이 다음 순서로 이어가는 것이다.
+이 문서는 2026-06-30에 실행했던 Agentic/Fable 후속 체인의 의도와 사후 결과를
+정리한다. 사용자 지시에 따라 현재는 추가 학습과 추가 GPU 평가는 하지 않는다.
+
+원래 목표는 기존 KO SFT가 끝난 뒤 다음 순서로 이어가는 것이었다.
 
 1. Stage2 SFT final 확인
 2. 빠른 gate 평가
 3. Fable/문서/로그 기반 agentic SFT
 4. agentic 최종 quick 평가와 harness smoke
 
-GRPO/RLVR는 이번 6월 30일 마감에서는 제외한다. 보상 설계와 샘플링 검증
-루프가 필요하므로, 먼저 SFT와 harness 평가로 도구 사용 형식과 로그 진단
-능력을 고정한다.
+GRPO/RLVR는 이번 6월 30일 마감에서 제외했다. 보상 설계와 샘플링 검증 루프가
+필요하므로, 먼저 SFT와 harness 평가로 도구 사용 형식과 로그 진단 능력을 보려고
+했다.
+
+사후 결론: Agentic/Fable stage는 공개 벤치 개선 실험으로 실패했다. 일부 작은
+회복은 있었지만 KO-CPT의 공개 벤치 성능을 되찾지 못했다.
 
 ## 데이터
 
@@ -40,7 +46,7 @@ bash scripts/run_prepare_lfmchat_agentic_fable_grounded.sh
 
 ## 자동 체인
 
-Stage2 final을 기다린 뒤 자동으로 gate eval, agentic SFT, final eval을 실행한다.
+아래는 당시 사용한 자동 체인이다. 현재는 실행하지 않는다.
 
 ```bash
 cd /home/work/.projects/LLM-OS-Models/Terminal/lfm2_ko_sft
@@ -77,12 +83,11 @@ logs/agent_eval/20260630_agentic_vllm_server.log
 | save steps | 500 |
 | target hub repo | `LLM-OS-Models/LFM2.5-8B-A1B-KO-Agentic-SFT` |
 
-8192 context를 우선 사용한다. 16k/32k agentic long-context는 최종 quick 평가 후
-별도 stage로 돌리는 것이 안전하다.
+8192 context를 우선 사용했다. 16k/32k agentic long-context는 실행하지 않았다.
 
 ## 평가
 
-Stage2 gate는 limit 50으로 빠르게 본다.
+Stage2 gate는 limit 50으로 빠르게 봤다.
 
 ```bash
 bash scripts/run_stage2_gate_eval_quick.sh
@@ -103,8 +108,8 @@ bash scripts/run_stage2_gate_eval_quick.sh
 - `arc_challenge,hellaswag`
 - `truthfulqa_mc2`
 
-Agentic final은 local Stage2 final과 local Agentic final을 비교한 뒤, vLLM
-OpenAI endpoint로 `agent_harness` smoke와 `agentic_eval` task suite를 실행한다.
+Agentic final은 local Stage2 final과 local Agentic final을 비교하도록 설계했다.
+현재 추가 GPU 평가는 중지되어 있다.
 
 ```bash
 MODE=real \
@@ -129,7 +134,7 @@ bash scripts/run_lfm2ko_agentic_eval.sh
 
 ## 마감 기준
 
-6월 30일 안에 끝내기 위해 우선순위는 다음과 같다.
+6월 30일 당시 우선순위는 다음과 같았다.
 
 1. Stage2 SFT 완료
 2. Stage2 quick gate 평가
@@ -137,4 +142,28 @@ bash scripts/run_lfm2ko_agentic_eval.sh
 4. Agentic quick 평가와 모델 카드 반영
 5. 공식 full benchmark 확장
 
-full BFCL/tau2/IFBench/AA-Omniscience는 4번 이후에 확장한다.
+full BFCL/tau2/IFBench/AA-Omniscience 확장은 현재 중지한다.
+
+## 사후 결과
+
+| task | Stage2 | Agentic/Fable | 변화 |
+|---|---:|---:|---:|
+| Global MMLU KO limit50 | 0.244681 | 0.251773 | +0.007092 |
+| Global MMLU KO medical limit50 | 0.361111 | 0.416667 | +0.055556 |
+| IFEval strict limit50 | 0.1000 | 0.1000 | +0.0000 |
+| KMMLU direct hard limit50 | 0.113407 | 0.109734 | -0.003673 |
+| MMLU-Pro law | 0.134423 | 0.150772 | +0.016349 |
+| MMLU-Pro economics | 0.323460 | 0.331754 | +0.008294 |
+| TruthfulQA MC2 | 0.474975 | 0.476824 | +0.001849 |
+| BoolQ | 0.6664 | 0.664220 | -0.002180 |
+| GSM8K exact | 0.3381 | 0.360879 | +0.022779 |
+
+해석:
+
+- Agentic/Fable은 터미널/로그/문서 근거 행동을 위한 소규모 behavior stage였다.
+- 공개 벤치 다지선다/정확답 repair 데이터가 아니므로 KMMLU, IFEval을 고치지
+  못했다.
+- Stage2 SFT로 이미 망가진 공개 벤치 분포를 7.12M tokens의 agentic 데이터로
+  되돌리기는 어렵다.
+- 다음 실험은 이 체크포인트에서 이어가지 말고 KO-CPT에서 작은 MCQA/정확답 repair
+  SFT로 다시 시작해야 한다.

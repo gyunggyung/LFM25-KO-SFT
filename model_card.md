@@ -38,19 +38,30 @@ Korean full-parameter SFT continuation of
 
 ## Status
 
-Training is in progress. Do not treat this card as a final benchmark report yet.
-Stage2 is the main KO-SFT model line. Stage3 Agentic/Fable training is published
-separately under `LLM-OS-Models/LFM2.5-8B-A1B-KO-Agentic-SFT`.
+**Important result:** this Stage2 KO-SFT checkpoint is not an improvement over
+KO-CPT on the selected public benchmark matrix. It is published for
+reproducibility and failure analysis, not as the recommended checkpoint over
+`LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL`.
+
+Stage2 is the main KO-SFT model line and has been uploaded to this repository.
+Stage3 Agentic/Fable training is a separate follow-up model line under
+`LLM-OS-Models/LFM2.5-8B-A1B-KO-Agentic-SFT`.
+
+The first selected full benchmark run shows that this Stage2 SFT checkpoint is
+not a blanket improvement over Base/CPT. It preserves or recovers a few axes,
+but it is weak on multiple-choice likelihood-style Korean benchmarks. Treat the
+numbers below as a diagnostic snapshot for the Stage2 SFT checkpoint, not as the
+final Agentic model report.
 
 | stage | status | samples | tokens | max seq | note |
 |---|---|---:|---:|---:|---|
 | Stage0 legal | completed | 8,747 | 35,068,923 | 8192 | Korean legal source/bar-style warmup |
 | Stage0b finance/Text2SQL | completed/uploaded | 280,000 | 58,090,087 | 4096 | 8 x H200 full SFT, 2,188 planned steps |
 | Stage1 4k finance/Text2SQL | completed/uploaded | 2,302,304 | 1,285,864,494 | 4096 | 8 x H200 full SFT |
-| Stage1 8k legal/terminal | running | 1,600,835 | 1,658,848,754 | 8192 | legal long-context and terminal/tool behavior |
-| Stage2 diverse KO/SWE/reasoning | prepared | 1,467,864 | 1,364,349,642 | 4096 | excludes raw CPT corpora |
-| Stage2 plus KoTSQA | prepared | 1,468,598 | 1,364,863,776 | 4096 | adds KoTSQA train split only |
-| Stage3 Agentic/Fable | separate repo | 3,943 | 7,124,298 | 8192 | Fable5/Helio + local doc/log grounded SFT |
+| Stage1 8k legal/terminal | completed/uploaded | 1,600,835 | 1,658,848,754 | 8192 | legal long-context and terminal/tool behavior |
+| Stage2 diverse KO/SWE/reasoning | completed | 1,467,864 | 1,364,349,642 | 4096 | excludes raw CPT corpora |
+| Stage2 plus KoTSQA | completed/uploaded | 1,468,598 | 1,364,863,776 | 4096 | main KO-SFT checkpoint; adds KoTSQA train split only |
+| Stage3 Agentic/Fable | completed/uploaded in separate repo | 3,943 | 7,124,298 | 8192 | diagnostic only; not a public benchmark improvement |
 
 Current staged main SFT total is about **4.309577B tokens**:
 
@@ -58,14 +69,99 @@ Current staged main SFT total is about **4.309577B tokens**:
 - Stage1 8k legal/terminal: 1.659B tokens
 - Stage2 diverse plus KoTSQA: 1.364864B tokens
 
-ETA from the 2026-06-29 15:57 KST status:
+## Experiment Verdict
 
-| stage | estimated completion |
-|---|---|
-| Stage1 8k | 2026-06-29 19:10-19:45 KST; 9840 / 12507 steps, 78.7% |
-| Stage2 plus KoTSQA | 2026-06-30 02:30-04:00 KST |
-| Stage2 quick gate eval | 2026-06-30 05:30-07:30 KST |
-| Stage3 Agentic/Fable SFT | 2026-06-30 morning KST |
+| checkpoint | verdict | reason |
+|---|---|---|
+| KO-CPT | strongest current public benchmark line | broad selected benchmark gains remain better than SFT |
+| KO-SFT Stage2 | failed as public benchmark improvement | most IFEval/GSM8K/ARC/PIQA/Korean MCQA axes fell below Base/CPT |
+| KO-Agentic Stage3 | failed as public benchmark improvement | small partial recovery only; intended behavior data is not benchmark repair data |
+
+If another SFT experiment is run later, the safer starting point is KO-CPT, not
+this regressed KO-SFT checkpoint. The next run should be a small MCQA and
+answer-format repair SFT with frequent gates.
+
+## Stage2 Selected Full Benchmark Snapshot
+
+Evaluation was run with vLLM/lm-eval on the uploaded Stage2 full checkpoint.
+Base and CPT reference values are copied from the CPT model card for the same
+task axes. `KMMLU direct hard STEM` failed once during a crowded vLLM queue and
+is marked as pending rather than reported here.
+
+| task | metric | Base | CPT | KO-SFT Stage2 | SFT vs Base | SFT vs CPT |
+|---|---|---:|---:|---:|---:|---:|
+| IFEval | prompt loose acc | 0.2921 | 0.3216 | 0.1738 | -0.1183 | -0.1478 |
+| Leaderboard IFEval | prompt loose acc | 0.2902 | 0.3457 | 0.1756 | -0.1146 | -0.1701 |
+| GSM8K | exact match | 0.4845 | 0.5701 | 0.3381 | -0.1464 | -0.2320 |
+| BoolQ | acc | 0.6544 | 0.7902 | 0.6664 | +0.0120 | -0.1238 |
+| ARC-Challenge | acc_norm | 0.3771 | 0.4241 | 0.2287 | -0.1484 | -0.1954 |
+| PIQA | acc_norm | 0.7203 | 0.7476 | 0.5930 | -0.1273 | -0.1546 |
+| Global MMLU KO medical genetics | acc | 0.2900 | 0.3800 | 0.3000 | +0.0100 | -0.0800 |
+| Global MMLU KO nutrition | acc | 0.2549 | 0.3203 | 0.2157 | -0.0392 | -0.1046 |
+| Global MMLU KO philosophy | acc | 0.2669 | 0.3215 | 0.1994 | -0.0675 | -0.1221 |
+| Global MMLU KO miscellaneous | acc | 0.3372 | 0.3921 | 0.2401 | -0.0971 | -0.1520 |
+| Global MMLU KO professional medicine | acc | 0.3235 | 0.2316 | 0.1838 | -0.1397 | -0.0478 |
+| Global MMLU KO high school statistics | acc | 0.2870 | 0.1574 | 0.2222 | -0.0648 | +0.0648 |
+| Global MMLU KO astronomy | acc | 0.3421 | 0.2829 | 0.1974 | -0.1447 | -0.0855 |
+| Global MMLU KO high school computer science | acc | 0.3100 | 0.2800 | 0.2800 | -0.0300 | +0.0000 |
+| Global MMLU KO jurisprudence | acc | 0.2870 | 0.2685 | 0.2593 | -0.0277 | -0.0092 |
+| KMMLU direct hard | exact match | 0.2015 | 0.1720 | 0.1055 | -0.0960 | -0.0665 |
+| MMLU-ProX Lite KO | exact match | 0.2585 | 0.1667 | 0.0867 | -0.1718 | -0.0800 |
+
+Interpretation:
+
+- Stage2 SFT preserved only a small subset of public benchmark axes. BoolQ is
+  slightly above Base, Global MMLU KO medical genetics is slightly above Base,
+  and high school statistics recovers part of the CPT regression.
+- Korean multiple-choice and exact-answer tasks are mostly below Base/CPT. This
+  suggests the SFT mix improved conversation/domain behavior more than
+  likelihood-style option selection.
+- The next SFT data mix should add explicit Korean MCQA formats: question,
+  choices, answer-only labels, and short rationales with the final option
+  separated. This is especially important for KMMLU, Global MMLU KO, and
+  MMLU-ProX style evaluation.
+
+## Stage3 Agentic/Fable Diagnostic Snapshot
+
+Stage3 Agentic/Fable was trained as a separate model line with Fable5/Helio and
+workspace document/log grounding. It was useful as a behavior experiment but did
+not repair public benchmark quality.
+
+| task | Stage2 | Agentic/Fable | change |
+|---|---:|---:|---:|
+| Global MMLU KO limit50 | 0.244681 | 0.251773 | +0.007092 |
+| Global MMLU KO medical limit50 | 0.361111 | 0.416667 | +0.055556 |
+| IFEval strict limit50 | 0.1000 | 0.1000 | +0.0000 |
+| KMMLU direct hard limit50 | 0.113407 | 0.109734 | -0.003673 |
+| MMLU-Pro law | 0.134423 | 0.150772 | +0.016349 |
+| MMLU-Pro economics | 0.323460 | 0.331754 | +0.008294 |
+| TruthfulQA MC2 | 0.474975 | 0.476824 | +0.001849 |
+| BoolQ | 0.6664 | 0.664220 | -0.002180 |
+| GSM8K exact | 0.3381 | 0.360879 | +0.022779 |
+
+This is not enough to call Stage3 successful. The stage is too small
+7.12M tokens, and its data targets terminal/log/document behavior rather than
+multiple-choice likelihood or exact-answer repair.
+
+## Failure Analysis
+
+The main failure mode is a mismatch between SFT behavior data and public
+benchmark scoring. The Stage2 mix teaches long Korean legal/finance answers,
+terminal/tool traces, Text2SQL, coding, and evidence QA. Those are useful
+assistant behaviors, but public MCQA benchmarks often score answer-token
+likelihood or exact final option extraction. A model can become more verbose and
+domain-specific while becoming worse at selecting a short option token.
+
+The response-only SFT format also did not directly optimize the choice ranking
+used by KMMLU, Global MMLU KO, and MMLU-ProX. KoTSQA is useful for evidence QA
+and false-premise correction, but it is not a direct MCQA repair set. Agentic
+Fable data is even further from public benchmark repair: it targets log reading,
+tool planning, and grounded terminal behavior.
+
+Next time, the repair experiment should start from KO-CPT and use a compact
+100M-300M token set focused on Korean MCQA, answer-only outputs, short
+rationales, final-option separation, and strict JSON/exact-answer formats. It
+should be stopped immediately if quick gates fall below KO-CPT.
 
 ## Goal
 
@@ -123,10 +219,10 @@ The current prepared Stage1 pool is about 2.945B tokens:
 - 4k finance/Text2SQL: 1.286B tokens
 - 8k legal/terminal: 1.659B tokens
 
-The next Stage2 pool is being prepared from Korean domain SFT, behavior mix,
-SWE/coding, reasoning, compact finance/legal, and Text2SQL reinforcement data.
-Raw CPT-style corpora such as Korean Wikipedia and raw law text are intentionally
-excluded from this SFT phase.
+The Stage2 pool was prepared from Korean domain SFT, behavior mix, SWE/coding,
+reasoning, compact finance/legal, and Text2SQL reinforcement data. Raw CPT-style
+corpora such as Korean Wikipedia and raw law text were intentionally excluded
+from this SFT phase.
 
 ## Quick Sanity Evaluation
 
@@ -141,9 +237,10 @@ This is a small `limit=50` vLLM sanity slice, not a final benchmark.
 | TruthfulQA MC2 acc | 0.5546 | 0.5407 |
 
 The current CPT checkpoint is Korean-knowledge heavy and does not improve this
-small English/general sanity slice. The ongoing SFT stages are intended to
-recover instruction following, reasoning format, legal/finance QA, tool use, and
-coding behavior.
+small English/general sanity slice. The SFT stages were intended to recover
+instruction following, reasoning format, legal/finance QA, tool use, and coding
+behavior, but the selected public benchmark results show that this attempt did
+not preserve broad benchmark quality.
 
 ## Training Recipe
 
@@ -152,7 +249,7 @@ coding behavior.
 - Parallelism: `torchrun` DDP across 8 H200 GPUs.
 - Optimizer: fused AdamW.
 - Scheduler: cosine with warmup.
-- Current Stage0b batch: `per_device_train_batch_size=2`,
+- Stage0b batch: `per_device_train_batch_size=2`,
   `gradient_accumulation_steps=8`, effective batch `128` sequences/update.
 - Checkpoints: every 1000 steps with total limit 2, plus final full model.
 
@@ -174,8 +271,10 @@ benchmark families:
 | Korean domain | legal/bar/accounting/finance probes | target-domain lift |
 | Structured output | Text2SQL and JSON exact extraction | format and exact-answer behavior |
 
-Final scores will be added after the same evaluation matrix has been run on all
-comparison models.
+The selected public matrix above is enough to mark the Stage2 KO-SFT line as a
+failed public-benchmark improvement. Slower official-card harnesses should be
+treated as future optional diagnostics, not as a reason to claim this checkpoint
+is stronger than KO-CPT.
 
 ## Usage
 
@@ -244,8 +343,15 @@ print(tokenizer.decode(output[0][inputs.shape[-1]:], skip_special_tokens=True))
 및 툴콜 동작을 강화하면서 기존 LFM2.5의 영어 추론과 도구 사용 능력을 유지하는
 것입니다.
 
-현재는 최종 릴리스 전 학습 중입니다. 모델 성능 표는 base, CPT, SFT를 같은
-vLLM 평가 설정으로 돌린 뒤 업데이트합니다.
+2026-06-30 기준 공개 벤치 결과는 실패로 판정합니다. Stage2 KO-SFT는 BoolQ와
+일부 Global MMLU KO 세부 항목에서만 제한적으로 회복했고, IFEval, GSM8K,
+ARC-Challenge, PIQA, KMMLU, MMLU-ProX Lite KO 등 핵심 공개 벤치에서는 Base/CPT
+보다 크게 낮았습니다. Stage3 Agentic/Fable도 일부 작은 회복은 있었지만 공개
+벤치 개선 모델로 보기에는 부족합니다.
+
+따라서 현재 대표 모델은 KO-CPT입니다. 이 KO-SFT 모델은 재현성과 실패 원인 분석
+목적으로 공개합니다. 다시 SFT를 한다면 이 체크포인트에서 이어가는 것보다
+KO-CPT에서 작은 다지선다/정확답 repair SFT를 새로 시작하는 편이 낫습니다.
 
 한국어 사용 예시는 위 `Usage`와 `Colab Example`을 참고하면 됩니다.
 

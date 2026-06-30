@@ -10,6 +10,7 @@ This workspace prepares, trains, evaluates, and publishes
 - External evaluation harnesses: [`docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md`](docs/EXTERNAL_HARNESS_SETUP_20260628.ko.md)
 - Agent harness: [`docs/AGENT_HARNESS_20260629.ko.md`](docs/AGENT_HARNESS_20260629.ko.md)
 - Agentic/Fable follow-up chain: [`docs/AGENTIC_FABLE_CHAIN_20260630.ko.md`](docs/AGENTIC_FABLE_CHAIN_20260630.ko.md)
+- KO-SFT / Agentic failure analysis: [`docs/SFT_AGENTIC_FAILURE_ANALYSIS_20260630.ko.md`](docs/SFT_AGENTIC_FAILURE_ANALYSIS_20260630.ko.md)
 - LinkedIn benchmark plan: [`docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md`](docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md)
 - Agentic eval tasks: [`agent_harness/agentic_eval_tasks.jsonl`](agent_harness/agentic_eval_tasks.jsonl)
 - Public Hugging Face datasets: [`docs/HF_DATASETS_20260629.ko.md`](docs/HF_DATASETS_20260629.ko.md)
@@ -19,22 +20,28 @@ This workspace prepares, trains, evaluates, and publishes
 
 ## Current Status
 
+2026-06-30 update: additional GPU learning/evaluation experiments are stopped by
+user instruction. The Stage2 KO-SFT and Stage3 Agentic/Fable checkpoints are
+uploaded for reproducibility, but the public benchmark verdict is negative:
+KO-CPT remains the stronger model line. See the failure analysis document above
+for the exact scores and root cause.
+
 | item | status | path / note |
 |---|---|---|
 | Stage0 legal full SFT | done | `/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-SFT-stage0-legal-20260628/final_full` |
 | Stage0b finance/Text2SQL full SFT | done/uploaded | `/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-SFT-stage0b-finance-text2sql-20260628/final_full` |
 | Stage1 4k finance/Text2SQL full SFT | done/uploaded | 2,302,304 samples, 1.286B tokens |
-| Stage1 8k legal/terminal prepared set | ready | 1,600,835 samples, 1.659B tokens |
-| Stage2 diverse KO/SWE/reasoning prepared set | ready | 1.364B tokens, excludes raw CPT-style corpora |
-| Stage2 plus KoTSQA | ready | 1,468,598 samples, 1.364864B tokens; adds `etri-lirs/KoTSQA-v.2.0` train split only |
-| Main SFT token total | staged | 1.286B + 1.659B + 1.364864B = 4.309577B |
-| Stage3 Agentic/Fable SFT | prepared by chain | Fable5 KO + Helio KO + local docs/logs grounding, 8k context |
-| Evaluation results | partial | quick base/CPT sanity slice exists; SFT eval deferred to keep GPUs training |
+| Stage1 8k legal/terminal full SFT | done/uploaded | 1,600,835 samples, 1.659B tokens |
+| Stage2 diverse KO/SWE/reasoning prepared set | done | 1.364B tokens, excludes raw CPT-style corpora |
+| Stage2 plus KoTSQA full SFT | done/uploaded | 1,468,598 samples, 1.364864B tokens; adds `etri-lirs/KoTSQA-v.2.0` train split only |
+| Main SFT token total | completed | 1.286B + 1.659B + 1.364864B = 4.309577B |
+| Stage3 Agentic/Fable SFT | done/uploaded; diagnostic only | 3,943 samples, 7,124,298 tokens; not a public benchmark improvement |
+| Evaluation results | diagnostic complete | Stage2 SFT regressed on most public benchmarks; Agentic only small partial recovery |
 | Public HF datasets | uploaded | 14 dataset repos, all with `data/`, README, and manifest; about 79.94GB uploaded |
 
-The active run uses full-parameter SFT, not LoRA. The working launcher is
-the direct `torchrun` DDP path because the earlier `Trainer` run loaded weights but
-stalled with near-zero GPU memory use during the second stage.
+The completed run used full-parameter SFT, not LoRA. The working launcher was
+the direct `torchrun` DDP path because the earlier `Trainer` run loaded weights
+but stalled with near-zero GPU memory use during the second stage.
 
 ## Why LFM-Style Preprocessing
 
@@ -62,7 +69,7 @@ bash scripts/run_prepare_lfmchat_stage0_legal.sh
 bash scripts/run_lfm25_ko_sft_stage0_legal.sh
 ```
 
-The current Stage1 4k run is:
+The historical Stage1 4k run was:
 
 ```bash
 cd /home/work/.projects/LLM-OS-Models/Terminal/lfm2_ko_sft
@@ -110,7 +117,7 @@ Important prepared sets:
 
 See the data plan for source URLs, local paths, and ratios.
 
-KoTSQA is being prepared as a Stage2 supplement under:
+KoTSQA was prepared as a Stage2 supplement under:
 
 ```text
 /home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage2_plus_kotsqa_4k
@@ -121,6 +128,8 @@ only. The `test` split is intentionally held out for later Korean QA evaluation.
 
 ## Training Order
 
+Historical order that produced the uploaded checkpoints:
+
 1. Stage1 4k finance/Text2SQL on 8 GPUs.
 2. Stage1 8k legal/terminal for legal long-context and tool behavior.
 3. Stage2 4k diverse KO/SWE/reasoning plus KoTSQA.
@@ -129,11 +138,10 @@ only. The `test` split is intentionally held out for later Korean QA evaluation.
 6. Run the agentic quick vLLM comparison and agent harness smoke.
 7. Update the model cards and expand official-card harnesses.
 
-Priority rule: keep the full SFT chain running first. CPU/network setup, docs,
-and harness installation can run in parallel, but GPU evaluation waits until a
-training stage releases GPUs unless it is a deliberate quick gate.
+Historical priority rule: keep the full SFT chain running first. Current
+instruction is different: do not start additional GPU learning or evaluation.
 
-Automatic chain sessions:
+Historical automatic chain sessions:
 
 ```bash
 tmux attach -t lfm2ko_chain_after_stage1_20260628
@@ -142,7 +150,12 @@ tmux attach -t lfm2ko_chain_agentic_after_stage2_20260630
 tmux attach -t lfm2ko_setup_external_harnesses_20260628
 ```
 
-ETA refreshed from the 2026-06-29 15:05 KST status:
+This chain has completed. Do not start additional training from the failed SFT
+line without a new experiment plan. If work resumes, the recommended repair path
+is to start from KO-CPT again with a small answer-format/MCQA SFT, not to keep
+training the regressed Stage2/Stage3 checkpoints.
+
+Historical ETA from the 2026-06-29 15:05 KST status:
 
 | item | tokens | estimate |
 |---|---:|---:|
@@ -152,12 +165,11 @@ ETA refreshed from the 2026-06-29 15:05 KST status:
 | Agentic/Fable SFT | Fable/log/doc SFT | 2026-06-30 08:00-12:00 KST |
 | Agentic quick eval + smoke | limit 50 + harness | 2026-06-30 13:00-15:30 KST |
 
-These windows are estimates and should be refreshed from `train_log.jsonl` after
-each stage starts.
+These windows are historical estimates and are kept only for audit context.
 
-The follow-up chain intentionally skips GRPO/RLVR for the June 30 deadline.
-Agentic behavior is trained with SFT traces first; RLVR should be a later
-experiment only after tool success metrics and reward checks are stable.
+The follow-up chain intentionally skipped GRPO/RLVR for the June 30 deadline.
+No additional RLVR/GRPO or SFT should be started from this failed line without a
+new plan.
 
 ## Agentic/Fable Follow-Up
 

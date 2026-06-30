@@ -1,0 +1,13 @@
+# Remaining Stage2 KO-SFT LinkedIn/public benchmark tasks after the first queue
+# stopped early. These write into the same RUN_ID root and are summarized with
+# the already completed tasks.
+ifeval,leaderboard_ifeval
+global_mmlu_full_ko_miscellaneous
+global_mmlu_full_ko_professional_medicine
+global_mmlu_full_ko_high_school_statistics
+global_mmlu_full_ko_astronomy
+global_mmlu_full_ko_high_school_computer_science
+global_mmlu_full_ko_jurisprudence
+kmmlu_direct_hard
+kmmlu_direct_hard_stem
+mmlu_prox_lite_ko

@@ -31,7 +31,10 @@ terminate_stage2_train_after_final() {
   if [ "${TERMINATE_STAGE2_TRAIN_AFTER_FINAL:-1}" != "1" ]; then
     return
   fi
-  mapfile -t pids < <(pgrep -f "stage2_4k_diverse_kotsqa" || true)
+  mapfile -t pids < <(
+    ps -eo pid=,cmd= |
+      awk '/stage2_4k_diverse_kotsqa/ && (/train_lfm25_ko_sft_torchrun.py/ || /torchrun/ || /torch\.distributed\.run/) {print $1}'
+  )
   if [ "${#pids[@]}" -eq 0 ]; then
     echo "stage2_train_processes_to_terminate=0" | tee -a "$LOG"
     return

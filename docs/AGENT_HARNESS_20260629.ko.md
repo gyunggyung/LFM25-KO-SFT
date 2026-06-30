@@ -8,8 +8,8 @@
 무작정 쓰는 대신, 학습 데이터에서 강하게 반복된 행동만 안정적으로 쓰기 위한
 bounded harness다.
 
-현재 학습은 계속 GPU 8장으로 진행한다. 이 harness는 CPU/파일 작업만 하므로 학습을
-중단하지 않는다.
+2026-06-30 기준 추가 GPU 학습/평가는 중지했다. 이 harness 문서는 코드 구조와
+CPU/mock 검증 방법을 보존하기 위한 참고 문서다.
 
 ## 잘 하도록 설계한 일
 
@@ -57,8 +57,8 @@ bash scripts/run_lfm2ko_agent_smoke_eval.sh
 이 명령은 실제 모델을 부르지 않고 profile routing, tool-call parsing, read_file
 흐름만 확인한다.
 
-에이전틱 task suite까지 같이 확인하려면 다음을 실행한다. mock 답변은 실제 성능
-판정용이 아니므로 실패가 있어도 종료 코드는 0으로 둔다.
+에이전틱 task suite mock 흐름을 확인할 때만 다음을 실행한다. mock 답변은 실제
+성능 판정용이 아니므로 실패가 있어도 종료 코드는 0으로 둔다.
 
 ```bash
 cd /home/work/.projects/LLM-OS-Models/Terminal/lfm2_ko_sft
