@@ -187,6 +187,34 @@ ALLOW_BASELINE_CPT_START=1 ALLOW_TRAIN=1 bash scripts/run_bar_exam_v5_sft_train_
 
 데이터가 5.86M 토큰뿐이라 긴 학습이 아니라 짧은 능력 주입 스테이지다.
 
+## 현재 두 모델 산출 이름
+
+이번 실험은 산출물을 두 개로 나눠 저장한다. 첫 번째 모델은 KO-CPT의 공개
+벤치마크 약점인 다지선다/정답 형식만 고치는 repair 모델이고, 두 번째
+모델은 그 repair 모델 위에 변시 v5 근거 기반 행동을 짧게 붙인 모델이다.
+
+| 순서 | 역할 | HF repo | local final |
+|---:|---|---|---|
+| 1 | KO-CPT repair SFT | `LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-Repair-SFT` | `/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-CPT-Repair-SFT-20260630/final_full` |
+| 2 | Repair + BarExamV5 SFT | `LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-Repair-BarExamV5-SFT` | `/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-CPT-Repair-BarExamV5-SFT-20260630/final_full` |
+
+두 단계 전체를 한 번에 재현하려면 다음 스크립트를 쓴다.
+
+```bash
+ALLOW_TRAIN=1 bash scripts/run_repair_then_bar_v5_train_chain_guarded.sh
+```
+
+이 체인은 repair 학습이 끝나면 `final_full`을 먼저 저장하고, repair 모델
+업로드를 백그라운드로 시작한 뒤 v5 학습을 바로 시작한다. 즉 HF 업로드 때문에
+GPU가 쉬는 시간을 만들지 않는 구성이며, v5 학습 종료 후 v5 모델도 별도 HF
+repo로 업로드한다.
+
+현재 수동으로 이미 `PUSH_TO_HUB=1`을 켠 repair 학습을 시작한 경우에는 이
+체인 스크립트가 중간부터 끼어들지는 않는다. 대신 repair `final_full`이
+생기는 즉시 v5 학습을 수동으로 이어서 시작하면 같은 결과 구조가 된다.
+
+## 학습 후 빠른 평가
+
 ## 기대 효과
 
 기대하는 개선은 범용 벤치마크 상승이 아니라 다음이다.
@@ -214,3 +242,23 @@ ALLOW_BASELINE_CPT_START=1 ALLOW_TRAIN=1 bash scripts/run_bar_exam_v5_sft_train_
 
 이 게이트에서 KO-CPT보다 변시-v5 task는 올라가고, 공개 MCQA가 추가로
 무너지지 않을 때만 더 큰 평가를 진행한다.
+
+vLLM 기반 공개 벤치 게이트는 다음 스크립트로 두 모델을 나눠 평가한다.
+
+```bash
+ALLOW_EVAL=1 bash scripts/run_repair_bar_v5_eval_after_training.sh
+```
+
+기본 GPU 배치는 다음이다.
+
+| 모델 | GPU | task groups |
+|---|---|---|
+| Repair SFT | `0,1,2,3` | `ifeval`, `gsm8k`, `global_mmlu_full_ko_jurisprudence`, `kmmlu_direct_hard`, `mmlu_prox_lite_ko`, `arc_challenge,boolq` |
+| BarExamV5 SFT | `4,5,6,7` | `ifeval`, `global_mmlu_full_ko_jurisprudence`, `kmmlu_direct_hard`, `mmlu_prox_lite_ko`, `arc_challenge,boolq` |
+
+목표는 전체 leaderboard를 한 번에 다시 도는 것이 아니라 다음을 빨리 확인하는
+것이다.
+
+- repair 모델이 KO-CPT의 답안 형식/다지선다 약점을 회복하는지.
+- v5 모델이 변시 근거 기반 행동을 얻으면서 공개 MCQA를 더 망치지 않는지.
+- SFT가 CPT에서 얻은 한국어/법률 지식 자체를 지우지 않았는지.

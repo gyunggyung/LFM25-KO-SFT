@@ -1,0 +1,6 @@
+ifeval
+gsm8k
+global_mmlu_full_ko_jurisprudence
+kmmlu_direct_hard
+mmlu_prox_lite_ko
+arc_challenge,boolq
