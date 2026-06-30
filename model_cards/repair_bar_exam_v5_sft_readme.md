@@ -81,6 +81,13 @@ multiple-choice/exact-extraction behavior. That is consistent with the training
 objective: long legal solution traces can push the model toward verbose legal
 reasoning and away from concise answer extraction.
 
+Final lesson: Korean bar-exam style solving should be treated as an
+evidence-grounded workflow problem, not as standalone SFT memorization. The
+model needs curated legal context, explicit O/X judgment, symbol-to-number
+choice mapping, and strict extraction gates. This diagnostic SFT showed that
+full-solution traces alone are not enough for reliable open-model bar-exam
+performance.
+
 For the next attempt, this should be split into either a separate legal-context
 adapter/model with its own held-out v5 evaluator, or a much smaller late-stage
 injection after a proven repair checkpoint. It should not be merged into the

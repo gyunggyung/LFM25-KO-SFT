@@ -43,6 +43,14 @@ path that improves broad performance. Do not continue training from the failed
 SFT/Agentic/Repair/V5 checkpoints. Treat this repository as a reproducible
 negative-result record and use KO-CPT as the representative checkpoint.
 
+Final lesson: CPT can improve Korean/domain knowledge and some broad benchmark
+axes, but it can also weaken MCQA, short exact-answer extraction, and option
+mapping. Broad SFT did not reliably repair that loss; in these runs it often
+moved the model toward verbose assistant responses and made MCQA/exact-answer
+scoring worse. For the Korean bar exam specifically, the viable path is not
+standalone SFT memorization, but evidence-grounded solving with curated legal
+context, explicit choice mapping, and a deterministic evaluation harness.
+
 At a glance:
 
 | question | answer |
@@ -51,6 +59,7 @@ At a glance:
 | This repo's KO-SFT status | negative result / reproducibility record |
 | Best immediate action | stop training, keep docs/results, use KO-CPT |
 | Why SFT failed | verbose assistant SFT drift hurt short exact-answer and MCQA scoring |
+| Bar exam conclusion | open-model standalone solving is not reliable; use grounded context/RAG plus strict answer mapping |
 
 | item | status | path / note |
 |---|---|---|

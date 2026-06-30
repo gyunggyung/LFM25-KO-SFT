@@ -49,6 +49,14 @@ improvement. The representative model remains
 [`LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL`](https://huggingface.co/LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL).
 This repository should be treated as a reproducible negative-result SFT record.
 
+**Final lesson:** CPT improved Korean/domain knowledge and parts of the public
+benchmark profile, but weakened short exact-answer, MCQA, and option-mapping
+behavior. Broad SFT did not reliably recover that behavior; in these runs it
+often moved the model toward verbose assistant responses and made MCQA/exact
+extraction worse. Future repair should be small, gated, and targeted. Korean bar
+exam solving should be treated as an evidence-grounded workflow problem, not a
+standalone SFT-only model problem.
+
 ## At A Glance
 
 | question | answer |
@@ -58,6 +66,7 @@ This repository should be treated as a reproducible negative-result SFT record.
 | Why publish this checkpoint? | Reproducibility, failure analysis, and future SFT repair design. |
 | Main failure mode | SFT improved verbose assistant behavior but harmed short exact-answer / MCQA scoring. |
 | Follow-up SFT result | Agentic, Repair-SFT, and BarExamV5-SFT did not recover broad benchmark performance. |
+| Korean bar exam verdict | Standalone open-model solving was not reliable; use curated evidence context, explicit option mapping, and strict evaluation. |
 
 ### Quick Score Snapshot
 

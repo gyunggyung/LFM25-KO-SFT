@@ -77,6 +77,12 @@ line. The likely failure mode is still answer distribution drift: response-only
 chat SFT changed the model toward verbose assistant behavior and away from
 short exact-answer extraction required by public MCQA tasks.
 
+Final lesson: CPT improved Korean/domain knowledge and parts of the benchmark
+profile, but broad SFT did not reliably repair the MCQA and short-answer
+regression. This checkpoint is evidence that simply adding more SFT, even with a
+repair-oriented mix, can preserve the wrong verbose assistant distribution
+instead of restoring concise option selection.
+
 For public benchmark reporting, prefer the KO-CPT checkpoint. If another repair
 attempt is made, it should be much smaller, use a lower learning rate, and stop
 early based on 100/300/500-step gate evaluations.
