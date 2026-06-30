@@ -49,6 +49,45 @@ improvement. The representative model remains
 [`LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL`](https://huggingface.co/LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL).
 This repository should be treated as a reproducible negative-result SFT record.
 
+## At A Glance
+
+| question | answer |
+|---|---|
+| Best current checkpoint from this project | [`LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL`](https://huggingface.co/LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL) |
+| Should I use this KO-SFT checkpoint for best benchmark performance? | No. Use KO-CPT instead. |
+| Why publish this checkpoint? | Reproducibility, failure analysis, and future SFT repair design. |
+| Main failure mode | SFT improved verbose assistant behavior but harmed short exact-answer / MCQA scoring. |
+| Follow-up SFT result | Agentic, Repair-SFT, and BarExamV5-SFT did not recover broad benchmark performance. |
+
+### Quick Score Snapshot
+
+Higher is better. Base/CPT reference scores are copied from the KO-CPT model
+card. This table is intentionally near the top because it is the main verdict.
+
+| task | Base | KO-CPT | KO-SFT Stage2 | verdict |
+|---|---:|---:|---:|---|
+| IFEval | 0.2921 | 0.3216 | 0.1738 | failed |
+| GSM8K | 0.4845 | 0.5701 | 0.3381 | failed |
+| BoolQ | 0.6544 | 0.7902 | 0.6664 | below CPT |
+| ARC-Challenge | 0.3771 | 0.4241 | 0.2287 | failed |
+| PIQA | 0.7203 | 0.7476 | 0.5930 | failed |
+| KMMLU direct hard | 0.2015 | 0.1720 | 0.1055 | failed |
+| MMLU-ProX Lite KO | 0.2585 | 0.1667 | 0.0867 | failed |
+
+### Which Model To Use
+
+For the strongest current Korean benchmark checkpoint from this project:
+
+```python
+model_id = "LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL"
+```
+
+For reproducing the failed SFT experiment in this repository:
+
+```python
+model_id = "LLM-OS-Models/LFM2.5-8B-A1B-KO-SFT"
+```
+
 Stage2 is the main KO-SFT model line and has been uploaded to this repository.
 Stage3 Agentic/Fable training is a separate follow-up model line under
 `LLM-OS-Models/LFM2.5-8B-A1B-KO-Agentic-SFT`.
@@ -283,6 +322,9 @@ treated as future optional diagnostics, not as a reason to claim this checkpoint
 is stronger than KO-CPT.
 
 ## Usage
+
+For best broad benchmark performance, replace `model_id` with
+`LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL`. Keep the same LFM chat-template usage.
 
 ```python
 from transformers import AutoTokenizer, AutoModelForCausalLM

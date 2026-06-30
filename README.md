@@ -43,6 +43,15 @@ path that improves broad performance. Do not continue training from the failed
 SFT/Agentic/Repair/V5 checkpoints. Treat this repository as a reproducible
 negative-result record and use KO-CPT as the representative checkpoint.
 
+At a glance:
+
+| question | answer |
+|---|---|
+| Representative model | `LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL` |
+| This repo's KO-SFT status | negative result / reproducibility record |
+| Best immediate action | stop training, keep docs/results, use KO-CPT |
+| Why SFT failed | verbose assistant SFT drift hurt short exact-answer and MCQA scoring |
+
 | item | status | path / note |
 |---|---|---|
 | Stage0 legal full SFT | done | `/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-SFT-stage0-legal-20260628/final_full` |
