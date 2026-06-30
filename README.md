@@ -13,6 +13,7 @@ This workspace prepares, trains, evaluates, and publishes
 - KO-SFT / Agentic failure analysis: [`docs/SFT_AGENTIC_FAILURE_ANALYSIS_20260630.ko.md`](docs/SFT_AGENTIC_FAILURE_ANALYSIS_20260630.ko.md)
 - KO-CPT repair SFT plan: [`docs/CPT_REPAIR_SFT_PLAN_20260630.ko.md`](docs/CPT_REPAIR_SFT_PLAN_20260630.ko.md)
 - Bar exam v5 context SFT plan: [`docs/BAR_EXAM_V5_CONTEXT_SFT_PLAN_20260630.ko.md`](docs/BAR_EXAM_V5_CONTEXT_SFT_PLAN_20260630.ko.md)
+- Repair / BarExamV5 SFT result analysis: [`docs/REPAIR_BAR_V5_RESULTS_20260630.ko.md`](docs/REPAIR_BAR_V5_RESULTS_20260630.ko.md)
 - LinkedIn benchmark plan: [`docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md`](docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md)
 - Agentic eval tasks: [`agent_harness/agentic_eval_tasks.jsonl`](agent_harness/agentic_eval_tasks.jsonl)
 - Public Hugging Face datasets: [`docs/HF_DATASETS_20260629.ko.md`](docs/HF_DATASETS_20260629.ko.md)
@@ -28,6 +29,13 @@ uploaded for reproducibility, but the public benchmark verdict is negative:
 KO-CPT remains the stronger model line. See the failure analysis document above
 for the exact scores and root cause.
 
+2026-06-30 later update: the KO-CPT Repair-SFT and Repair-BarExamV5-SFT follow-up
+experiments also completed and uploaded. They are diagnostic negative results:
+Repair-SFT did not recover the KO-CPT public benchmark profile, and BarExamV5-SFT
+only improved a narrow jurisprudence gate while hurting broader Korean
+multiple-choice/exact-extraction tasks. The representative checkpoint remains
+`LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL`.
+
 | item | status | path / note |
 |---|---|---|
 | Stage0 legal full SFT | done | `/home/work/.data/lfm2_ko_sft/models/LFM2.5-8B-A1B-KO-SFT-stage0-legal-20260628/final_full` |
@@ -38,6 +46,8 @@ for the exact scores and root cause.
 | Stage2 plus KoTSQA full SFT | done/uploaded | 1,468,598 samples, 1.364864B tokens; adds `etri-lirs/KoTSQA-v.2.0` train split only |
 | Main SFT token total | completed | 1.286B + 1.659B + 1.364864B = 4.309577B |
 | Stage3 Agentic/Fable SFT | done/uploaded; diagnostic only | 3,943 samples, 7,124,298 tokens; not a public benchmark improvement |
+| KO-CPT Repair-SFT | done/uploaded; diagnostic failed | 188,493 samples, 131,607,379 tokens; below KO-CPT on gate tasks |
+| Repair-BarExamV5-SFT | done/uploaded; narrow legal diagnostic | 6,374 samples, 5,863,863 tokens; jurisprudence up, broad MCQA down |
 | Evaluation results | diagnostic complete | Stage2 SFT regressed on most public benchmarks; Agentic only small partial recovery |
 | Public HF datasets | uploaded | 14 dataset repos, all with `data/`, README, and manifest; about 79.94GB uploaded |
 
