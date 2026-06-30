@@ -11,6 +11,7 @@ This workspace prepares, trains, evaluates, and publishes
 - Agent harness: [`docs/AGENT_HARNESS_20260629.ko.md`](docs/AGENT_HARNESS_20260629.ko.md)
 - Agentic/Fable follow-up chain: [`docs/AGENTIC_FABLE_CHAIN_20260630.ko.md`](docs/AGENTIC_FABLE_CHAIN_20260630.ko.md)
 - KO-SFT / Agentic failure analysis: [`docs/SFT_AGENTIC_FAILURE_ANALYSIS_20260630.ko.md`](docs/SFT_AGENTIC_FAILURE_ANALYSIS_20260630.ko.md)
+- KO-CPT repair SFT plan: [`docs/CPT_REPAIR_SFT_PLAN_20260630.ko.md`](docs/CPT_REPAIR_SFT_PLAN_20260630.ko.md)
 - LinkedIn benchmark plan: [`docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md`](docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md)
 - Agentic eval tasks: [`agent_harness/agentic_eval_tasks.jsonl`](agent_harness/agentic_eval_tasks.jsonl)
 - Public Hugging Face datasets: [`docs/HF_DATASETS_20260629.ko.md`](docs/HF_DATASETS_20260629.ko.md)
@@ -154,6 +155,14 @@ This chain has completed. Do not start additional training from the failed SFT
 line without a new experiment plan. If work resumes, the recommended repair path
 is to start from KO-CPT again with a small answer-format/MCQA SFT, not to keep
 training the regressed Stage2/Stage3 checkpoints.
+
+CPU-only preparation code for that repair path is present and guarded:
+
+```bash
+bash scripts/run_prepare_cpt_repair_sft_dryrun.sh
+bash scripts/run_prepare_cpt_repair_sft_full.sh
+bash scripts/run_cpt_repair_sft_train_guarded.sh  # refuses unless ALLOW_TRAIN=1
+```
 
 Historical ETA from the 2026-06-29 15:05 KST status:
 

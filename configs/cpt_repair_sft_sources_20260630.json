@@ -1,0 +1,113 @@
+{
+  "purpose": "Prepare a small KO-CPT repair SFT set that preserves CPT benchmark strengths while repairing Korean MCQA, exact-answer, and answer-format behavior.",
+  "do_not_train_by_default": true,
+  "start_from": "LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL",
+  "local_start_from": "/home/work/.data/lfm2_ko_cpt/models/LFM2.5-8B-A1B-KO-CPT-FULL-20260628_lfm25_8b_ko_cpt_full_lfmstyle/final_full",
+  "target_tokens": {
+    "dryrun": 2000000,
+    "full_preprocess": 200000000,
+    "recommended_training_window": "100M-300M tokens"
+  },
+  "mix_targets": [
+    {
+      "category": "korean_mcqa_exact_answer",
+      "target_ratio": 0.35,
+      "sources": [
+        "current_law_bar_json_answer_sft_20260621",
+        "answer-only variants",
+        "compact JSON answer_choice variants",
+        "short rationale plus final option variants"
+      ],
+      "reason": "The failed Stage2 SFT regressed most Korean MCQA/exact-answer tasks. This is the primary repair signal."
+    },
+    {
+      "category": "korean_evidence_qa",
+      "target_ratio": 0.15,
+      "sources": [
+        "KoTSQA v2 train split only"
+      ],
+      "reason": "Keep grounded Korean QA and false-premise correction without using held-out test rows."
+    },
+    {
+      "category": "finance_text2sql_exact",
+      "target_ratio": 0.15,
+      "sources": [
+        "kohrm_sft_comp_finance_50m_v1",
+        "kohrm_sft_text2sql_core_clean_duckdb_v1"
+      ],
+      "reason": "Preserve domain and structured-output behavior without repeating the full failed SFT mix."
+    },
+    {
+      "category": "coding_swe_preservation",
+      "target_ratio": 0.15,
+      "sources": [
+        "kohrm_sft_comp_swe_zero_30m_v1"
+      ],
+      "reason": "Keep coding/SWE behavior while limiting non-MCQA drift."
+    },
+    {
+      "category": "reasoning_instruction_preservation",
+      "target_ratio": 0.20,
+      "sources": [
+        "kohrm_sft_comp_glm_reasoning_20m_v1",
+        "kohrm_sft_comp_agent_reasoning_25m_v1",
+        "kohrm_sft_behavior_mini_v1"
+      ],
+      "reason": "Preserve general instruction and reasoning behavior so MCQA repair does not overfit to Korean legal format."
+    }
+  ],
+  "raw_sources": {
+    "legal_bar_jsonl": "/home/work/.data/lfm2_ko_cpt/datasets/shards_full_lfmstyle_20260627/008_current_law_bar_json_answer_sft_20260621.jsonl",
+    "kotsqa_train_jsonl": "/home/work/.data/lfm2_ko_sft/prepared/lfm_chat/20260628_lfmchat_stage2_plus_kotsqa.jsonl/kotsqa_v2_train.jsonl"
+  },
+  "prepared_preservation_sources": [
+    {
+      "id": "finance_compact",
+      "path": "/home/work/.data/hrm_text_prepared/kohrm_sft_comp_finance_50m_v1",
+      "target_tokens": 30000000
+    },
+    {
+      "id": "text2sql_duckdb",
+      "path": "/home/work/.data/hrm_text_prepared/kohrm_sft_text2sql_core_clean_duckdb_v1",
+      "target_tokens": 20000000
+    },
+    {
+      "id": "swe_compact",
+      "path": "/home/work/.data/hrm_text_prepared/kohrm_sft_comp_swe_zero_30m_v1",
+      "target_tokens": 25000000
+    },
+    {
+      "id": "reasoning_compact",
+      "path": "/home/work/.data/hrm_text_prepared/kohrm_sft_comp_glm_reasoning_20m_v1",
+      "target_tokens": 20000000
+    },
+    {
+      "id": "agent_reasoning_compact",
+      "path": "/home/work/.data/hrm_text_prepared/kohrm_sft_comp_agent_reasoning_25m_v1",
+      "target_tokens": 15000000
+    },
+    {
+      "id": "behavior_mini",
+      "path": "/home/work/.data/hrm_text_prepared/kohrm_sft_behavior_mini_v1",
+      "target_tokens": 10000000
+    }
+  ],
+  "validation_gates": [
+    "No benchmark test split in metadata/source path.",
+    "Token max must be below LFM tokenizer vocab size.",
+    "At least 20 percent of raw rows should be answer-only or compact exact-answer rows.",
+    "Response-only labels must be non-empty.",
+    "Prepared max sequence length must be 4096 unless explicitly changed.",
+    "Training script must refuse to run unless ALLOW_TRAIN=1 is set."
+  ],
+  "future_eval_gate": [
+    "ifeval",
+    "gsm8k",
+    "boolq",
+    "arc_challenge",
+    "piqa",
+    "global_mmlu_ko",
+    "kmmlu_direct_hard",
+    "mmlu_prox_lite_ko"
+  ]
+}
