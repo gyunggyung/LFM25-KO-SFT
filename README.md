@@ -164,6 +164,14 @@ bash scripts/run_prepare_cpt_repair_sft_full.sh
 bash scripts/run_cpt_repair_sft_train_guarded.sh  # refuses unless ALLOW_TRAIN=1
 ```
 
+The full CPU preprocess for the first repair candidate is complete:
+
+```text
+/home/work/.data/lfm2_ko_sft/prepared/repair_cpt/20260630_cpt_mcqa_repair_4k/lfm_chat_4k
+```
+
+It contains 188,493 samples and 131,607,379 LFM tokens with validation errors 0.
+
 Historical ETA from the 2026-06-29 15:05 KST status:
 
 | item | tokens | estimate |
