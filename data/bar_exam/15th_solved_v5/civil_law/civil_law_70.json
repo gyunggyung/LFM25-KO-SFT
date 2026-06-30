@@ -1,0 +1,13 @@
+{
+  "question_id": "civil_law_70",
+  "answer": "4",
+  "selected_letters": [
+    "ㄱ(○)",
+    "ㄴ(○)",
+    "ㄷ(○)",
+    "ㄹ(×)"
+  ],
+  "question_direction": "옳은 것과 옳지 않은 것을 올바르게 조합한 것",
+  "confidence": "high",
+  "reasoning_file": "civil_law_70_solution.md"
+}

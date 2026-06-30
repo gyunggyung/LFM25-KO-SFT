@@ -12,6 +12,7 @@ This workspace prepares, trains, evaluates, and publishes
 - Agentic/Fable follow-up chain: [`docs/AGENTIC_FABLE_CHAIN_20260630.ko.md`](docs/AGENTIC_FABLE_CHAIN_20260630.ko.md)
 - KO-SFT / Agentic failure analysis: [`docs/SFT_AGENTIC_FAILURE_ANALYSIS_20260630.ko.md`](docs/SFT_AGENTIC_FAILURE_ANALYSIS_20260630.ko.md)
 - KO-CPT repair SFT plan: [`docs/CPT_REPAIR_SFT_PLAN_20260630.ko.md`](docs/CPT_REPAIR_SFT_PLAN_20260630.ko.md)
+- Bar exam v5 context SFT plan: [`docs/BAR_EXAM_V5_CONTEXT_SFT_PLAN_20260630.ko.md`](docs/BAR_EXAM_V5_CONTEXT_SFT_PLAN_20260630.ko.md)
 - LinkedIn benchmark plan: [`docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md`](docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md)
 - Agentic eval tasks: [`agent_harness/agentic_eval_tasks.jsonl`](agent_harness/agentic_eval_tasks.jsonl)
 - Public Hugging Face datasets: [`docs/HF_DATASETS_20260629.ko.md`](docs/HF_DATASETS_20260629.ko.md)
@@ -171,6 +172,26 @@ The full CPU preprocess for the first repair candidate is complete:
 ```
 
 It contains 188,493 samples and 131,607,379 LFM tokens with validation errors 0.
+
+The CPU-only bar-exam v5 context-solver preparation is also complete:
+
+```text
+/home/work/.data/lfm2_ko_sft/prepared/bar_exam_v5/20260630_bar_exam_v5_context_solver_8192/lfm_chat_8192
+```
+
+It contains 6,374 samples and 5,863,863 LFM tokens with validation errors 0.
+This is a small follow-up candidate, not another large CPT-style run. It uses
+1~14th bar-exam safe multiple-choice labels for answer-format repair, current-law
+simple/hard SFT rows, 15th v5 answer-free procedure rows, legal search first
+actions, and `Bar-exam-test/15th_solved_v5` full/compact grounded solutions.
+Training is guarded and refuses unless `ALLOW_TRAIN=1`:
+
+```bash
+bash scripts/run_prepare_bar_exam_v5_sft.sh
+bash scripts/run_bar_exam_v5_sft_train_guarded.sh
+```
+
+Details: [`docs/BAR_EXAM_V5_CONTEXT_SFT_PLAN_20260630.ko.md`](docs/BAR_EXAM_V5_CONTEXT_SFT_PLAN_20260630.ko.md).
 
 Historical ETA from the 2026-06-29 15:05 KST status:
 

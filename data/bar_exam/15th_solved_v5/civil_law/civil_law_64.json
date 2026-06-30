@@ -1,0 +1,10 @@
+{
+  "question_id": "civil_law_64",
+  "answer": "2",
+  "selected_letters": [
+    "②"
+  ],
+  "question_direction": "옳지 않은 것",
+  "confidence": "high",
+  "reasoning_file": "civil_law_64_solution.md"
+}

@@ -1,0 +1,10 @@
+{
+  "question_id": "public_law_34",
+  "answer": "2",
+  "selected_letters": [
+    "②"
+  ],
+  "question_direction": "옳은 것을 모두 고른 것",
+  "confidence": "high",
+  "reasoning_file": "public_law_34_solution.md"
+}

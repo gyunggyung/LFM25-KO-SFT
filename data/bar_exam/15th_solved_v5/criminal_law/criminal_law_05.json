@@ -1,0 +1,10 @@
+{
+  "question_id": "criminal_law_05",
+  "answer": "1",
+  "selected_letters": [
+    "ㄱ"
+  ],
+  "question_direction": "옳은 것을 모두 고른 것",
+  "confidence": "high",
+  "reasoning_file": "criminal_law_05_solution.md"
+}

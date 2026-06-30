@@ -1,0 +1,13 @@
+{
+  "question_id": "civil_law_68",
+  "answer": "5",
+  "selected_letters": [
+    "ㄴ",
+    "ㄷ",
+    "ㄹ",
+    "ㅁ"
+  ],
+  "question_direction": "해당하는 것을 모두 고른 것",
+  "confidence": "high",
+  "reasoning_file": "civil_law_68_solution.md"
+}

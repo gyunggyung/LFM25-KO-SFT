@@ -1,0 +1,10 @@
+{
+  "question_id": "public_law_18",
+  "answer": "1",
+  "selected_letters": [
+    "①"
+  ],
+  "question_direction": "옳은 것(○)과 옳지 않은 것(×)의 올바른 조합",
+  "confidence": "high",
+  "reasoning_file": "public_law_18_solution.md"
+}

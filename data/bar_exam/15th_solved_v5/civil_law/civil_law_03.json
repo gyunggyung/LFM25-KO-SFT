@@ -1,0 +1,13 @@
+{
+  "question_id": "civil_law_03",
+  "answer": "5",
+  "selected_letters": [
+    "ㄱ",
+    "ㄴ",
+    "ㄷ",
+    "ㄹ"
+  ],
+  "question_direction": "옳은 것",
+  "confidence": "high",
+  "reasoning_file": "civil_law_03_solution.md"
+}

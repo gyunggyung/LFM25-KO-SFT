@@ -1,0 +1,12 @@
+{
+  "question_id": "public_law_04",
+  "answer": "4",
+  "selected_letters": [
+    "ㄴ",
+    "ㄷ",
+    "ㄹ"
+  ],
+  "question_direction": "옳은 것을 모두 고른 것",
+  "confidence": "high",
+  "reasoning_file": "public_law_04_solution.md"
+}

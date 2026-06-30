@@ -1,0 +1,10 @@
+{
+  "question_id": "criminal_law_21",
+  "answer": "5",
+  "selected_letters": [
+    "⑤"
+  ],
+  "question_direction": "옳은 것과 옳지 않은 것을 올바르게 조합한 것",
+  "confidence": "high",
+  "reasoning_file": "criminal_law_21_solution.md"
+}

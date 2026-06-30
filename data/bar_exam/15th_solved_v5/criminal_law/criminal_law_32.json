@@ -1,0 +1,10 @@
+{
+  "question_id": "criminal_law_32",
+  "answer": "3",
+  "selected_letters": [
+    "③"
+  ],
+  "question_direction": "옳은 것(○)과 옳지 않은 것(×)을 올바르게 조합한 것",
+  "confidence": "high",
+  "reasoning_file": "criminal_law_32_solution.md"
+}
