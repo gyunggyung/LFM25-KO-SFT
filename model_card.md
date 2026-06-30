@@ -43,6 +43,12 @@ KO-CPT on the selected public benchmark matrix. It is published for
 reproducibility and failure analysis, not as the recommended checkpoint over
 `LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL`.
 
+**Final closeout on 2026-06-30:** the later Agentic/Fable, KO-CPT Repair-SFT,
+and BarExamV5-SFT experiments also failed to produce a reliable broad benchmark
+improvement. The representative model remains
+[`LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL`](https://huggingface.co/LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL).
+This repository should be treated as a reproducible negative-result SFT record.
+
 Stage2 is the main KO-SFT model line and has been uploaded to this repository.
 Stage3 Agentic/Fable training is a separate follow-up model line under
 `LLM-OS-Models/LFM2.5-8B-A1B-KO-Agentic-SFT`.

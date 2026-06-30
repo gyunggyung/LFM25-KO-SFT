@@ -15,6 +15,7 @@ This workspace prepares, trains, evaluates, and publishes
 - Bar exam v5 context SFT plan: [`docs/BAR_EXAM_V5_CONTEXT_SFT_PLAN_20260630.ko.md`](docs/BAR_EXAM_V5_CONTEXT_SFT_PLAN_20260630.ko.md)
 - Repair / BarExamV5 SFT result analysis: [`docs/REPAIR_BAR_V5_RESULTS_20260630.ko.md`](docs/REPAIR_BAR_V5_RESULTS_20260630.ko.md)
 - Bar exam v5 custom eval result: [`docs/BAR_EXAM_V5_CUSTOM_EVAL_RESULTS_20260630.ko.md`](docs/BAR_EXAM_V5_CUSTOM_EVAL_RESULTS_20260630.ko.md)
+- Final summary: [`docs/FINAL_SUMMARY_20260630.ko.md`](docs/FINAL_SUMMARY_20260630.ko.md)
 - LinkedIn benchmark plan: [`docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md`](docs/LINKEDIN_BENCHMARK_PLAN_20260630.ko.md)
 - Agentic eval tasks: [`agent_harness/agentic_eval_tasks.jsonl`](agent_harness/agentic_eval_tasks.jsonl)
 - Public Hugging Face datasets: [`docs/HF_DATASETS_20260629.ko.md`](docs/HF_DATASETS_20260629.ko.md)
@@ -36,6 +37,11 @@ Repair-SFT did not recover the KO-CPT public benchmark profile, and BarExamV5-SF
 only improved a narrow jurisprudence gate while hurting broader Korean
 multiple-choice/exact-extraction tasks. The representative checkpoint remains
 `LLM-OS-Models/LFM2.5-8B-A1B-KO-CPT-FULL`.
+
+Final 2026-06-30 closeout: there is no reliable immediate follow-up training
+path that improves broad performance. Do not continue training from the failed
+SFT/Agentic/Repair/V5 checkpoints. Treat this repository as a reproducible
+negative-result record and use KO-CPT as the representative checkpoint.
 
 | item | status | path / note |
 |---|---|---|
